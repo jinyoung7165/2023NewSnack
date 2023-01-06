@@ -40,3 +40,6 @@ class S3:
             # print(df)
         except Exception as e:
             print(e)
+        else:
+            print("s3 file download success!") 
+            return df

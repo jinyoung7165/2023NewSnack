@@ -4,7 +4,6 @@ import datetime
 import pandas as pd
 
 import press_crawl
-from s3_method import S3
 
 now_date = datetime.datetime.now().date()
 label = ["링크", "저자","날짜","제목", "본문"]
