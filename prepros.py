@@ -1,7 +1,6 @@
 import pandas
 from collections import Counter
 from functools import reduce
-import konlpy
 from konlpy.tag import *
 import boto3
 import io
@@ -67,11 +66,13 @@ def s3_connection():
             #data_file = pandas.read_csv("{}".format(df), encoding='utf-8-sig') # 상대경로
             # main = data_file[['본문']]
             main = df['본문'].str.replace("[^A-Za-z0-9가-힣]", "")
+
             i = 0
             for line in main:
                 arr.append(line)
                 i += 1
 
+
 s3_connection()
 # get_headline(r)
-preprocess()
+# preprocess()
