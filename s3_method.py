@@ -33,7 +33,10 @@ class S3:
             
     # S3로 파일 다운로드 함수
     def s3_download_file(self, now_date, filename):
-        obj = self.s3.get_object(Bucket=os.environ.get('s3_bucket_name'), 
-                                Key="data/{}/{}".format(now_date, filename))
-        df = pandas.read_csv(io.BytesIO(obj['Body'].read()), encoding="utf-8-sig")
-        # print(df)
+        try:
+            obj = self.s3.get_object(Bucket=os.environ.get('s3_bucket_name'), 
+                                    Key="data/{}/{}".format(now_date, filename))
+            df = pandas.read_csv(io.BytesIO(obj['Body'].read()), encoding="utf-8-sig")
+            # print(df)
+        except Exception as e:
+            print(e)
