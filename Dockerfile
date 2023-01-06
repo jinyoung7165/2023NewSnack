@@ -17,6 +17,10 @@ COPY --from=build /opt/chrome-linux /opt/chrome
 COPY --from=build /opt/chromedriver /opt/
 COPY .env ./
 COPY app.py ./
+COPY crawl.py ./
+COPY press_crawl.py ./
+COPY s3_method.py ./
+
 WORKDIR /tmp
 # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
 CMD [ "app.handler" ]

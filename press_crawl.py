@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
 class Sbs:
-    def current_page_items(self, item_list): #전체페이지에서 각 기사의 링크, 메타데이터 저장해둠
+    def current_page_items(self, driver, item_list): #전체페이지에서 각 기사의 링크, 메타데이터 저장해둠
         try:
-            all_items_ul = self.driver.find_element(By.XPATH, "//*[@id='container']/div[2]/div[2]/ul")
+            all_items_ul = driver.find_element(By.XPATH, "//*[@id='container']/div[2]/div[2]/ul")
             all_items = all_items_ul.find_elements(By.TAG_NAME, "li")
             for meta in all_items:
                 meta_url = meta.find_element(By.XPATH, "meta[contains(@itemprop, 'mainEntityOfPage')]")
@@ -18,7 +18,8 @@ class Sbs:
                 item_headline = meta_headline.get_attribute("content")
 
                 item_list.append([item_url, item_author, item_date, item_headline])
-        except Exception:
+        except Exception as e:
+            print(e)
             return False
     
     def get_news_content(self, driver): #각 기사에서 뉴스 전문 가져옴

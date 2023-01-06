@@ -2,12 +2,9 @@ from selenium import webdriver
 from tempfile import mkdtemp
 import datetime
 import pandas as pd
-from dotenv import load_dotenv
 
 import press_crawl
 from s3_method import S3
-# load .env
-load_dotenv()
 
 now_date = datetime.datetime.now().date()
 label = ["링크", "저자","날짜","제목", "본문"]
@@ -18,6 +15,7 @@ class Crawl:
         self.press = press
         self.filename = '{}.csv'.format(press)
         self.options = webdriver.ChromeOptions()
+        self.options.binary_location = '/opt/chrome/chrome'
         self.options.add_argument('--headless')
         self.options.add_argument('--no-sandbox')
         self.options.add_argument("--disable-gpu")
@@ -30,7 +28,8 @@ class Crawl:
         self.options.add_argument(f"--data-path={mkdtemp()}")
         self.options.add_argument(f"--disk-cache-dir={mkdtemp()}")
         self.options.add_argument("--remote-debugging-port=9222")
-        self.driver = webdriver.Chrome(options=self.options)
+        self.driver = webdriver.Chrome("/opt/chromedriver",
+                                options=self.options)
     
     def crawling(self):
         if self.press == "sbs": 
@@ -52,23 +51,4 @@ class Crawl:
         
     def convert_xslx(self):
         result = pd.DataFrame(self.item_list, columns = label)
-        result.to_csv(self.filename, encoding="utf-8-sig")  
-
-s3 = S3() #s3 connection 1번
-
-crawl_sbs = Crawl("sbs")
-crawl_sbs.crawling()
-
-''' . . . 다른 언론사 crawl . . . '''
-
-#s3.s3_upload_file(now_date, crawl_sbs.filename)
-# 날짜/sbs.csv
-
-''' . . . 다른 언론사 파일 저장 . . . '''
-
-
-''' . . . 1. 하루치 모든 언론사 파일/item_list 집합 -> 전처리 . . . '''
-# ex: crawl_sbs.item_list[4] -> 전처리 함수 사용
-# csv 읽어와서
-
-''' . . . 2. 일주일치 모든 언론사 파일 집합  . . . '''
+        result.to_csv(self.filename, encoding="utf-8-sig")
