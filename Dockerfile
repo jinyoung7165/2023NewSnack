@@ -15,6 +15,7 @@ COPY requirements.txt  .
 RUN pip install selenium && pip install -r requirements.txt
 COPY --from=build /opt/chrome-linux /opt/chrome
 COPY --from=build /opt/chromedriver /opt/
+COPY .env ./
 COPY app.py ./
 WORKDIR /tmp
 # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)

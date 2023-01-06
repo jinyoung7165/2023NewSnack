@@ -6,6 +6,10 @@ import datetime
 import boto3
 import pandas as pd
 import os
+from dotenv import load_dotenv
+
+# load .env
+load_dotenv()
 
 def handler(event=None, context=None):
     os.chdir('/tmp')
@@ -31,16 +35,16 @@ def handler(event=None, context=None):
   
         # 수집 날짜
         now_date = datetime.datetime.now().date()
-        filename = '{}_{}.csv'.format(now_date,"sbs")
+        filename = '{}.csv'.format(now_date,"sbs")
         
         def s3_connection():
             try:
                 # s3 클라이언트 생성
                 s3 = boto3.client(
-                    service_name="s3",
-                    region_name="ap-northeast-2",
-                    aws_access_key_id="AKIAQASQUQJO3YZ3GMMM",
-                    aws_secret_access_key="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",
+                    service_name = "s3",
+                    region_name = "ap-northeast-2",
+                    aws_access_key_id = os.environ.get('aws_access_key_id'),
+                    aws_secret_access_key = os.environ.get('aws_secret_access_key'),
                 )
             except Exception as e:
                 print(e)
@@ -53,7 +57,7 @@ def handler(event=None, context=None):
             s3 = s3_connection()
             try:
                 s3.upload_file(filename, #local 파일이름
-                            "test-crawling-1", #버킷 이름
+                            os.environ.get('s3_bucket_name'), #버킷 이름
                             "data/{}/{}".format(now_date, filename)) #저장될 이름
             except Exception as e:
                 print(e)      
