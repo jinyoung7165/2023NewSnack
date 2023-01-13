@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 
 import press_crawl
 from s3_method import S3
+from prepros import Preprocess
+
 # load .env
 load_dotenv()
 
@@ -68,7 +70,9 @@ crawl_sbs.crawling()
 
 
 ''' . . . 1. 하루치 모든 언론사 파일/item_list 집합 -> 전처리 . . . '''
-# ex: crawl_sbs.item_list[4] -> 전처리 함수 사용
-# csv 읽어와서
-
+prepross = Preprocess(s3)
+prepross.get_s3_file(now_date, crawl_sbs.filename)
+prepross.csv_to_text()
+prepross.preprocess()
+print(prepross.result)
 ''' . . . 2. 일주일치 모든 언론사 파일 집합  . . . '''

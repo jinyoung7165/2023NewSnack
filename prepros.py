@@ -1,39 +1,34 @@
-import pandas
-from collections import Counter
-from functools import reduce
-from konlpy.tag import *
 import s3_method
 from konlpy.tag import Okt
-from nltk.corpus import stopwords 
-from nltk.tokenize import word_tokenize 
 
 class Preprocess:
-    def get_s3_file(self):
-        s3 = s3_method.S3()
-        self.s3_file = s3.s3_download_file("2023-01-06", 'sbs') # 작은 따옴표..
+    def __init__(self, s3):
+        self.s3 = s3
+        file = open('stopword.txt', 'r', encoding = 'utf-8')
+        self.stopwords = []
+        for line in file.readlines():
+            self.stopwords.append(line.strip())
+            
+    def get_s3_file(self, date, filename):
+        self.s3_file = self.s3.s3_download_file(date, filename) # 작은 따옴표..
         
-    def csv_to_text(self):
-        main = self.s3_file['본문'].str.replace("[^A-Z a-z 0-9 가-힣]", "")
+    def csv_to_text(self): #본문 한번에 한 줄 string으로
+        main = self.s3_file['본문'].str.replace("[^A-Z a-z 0-9 가-힣 .]", "")
         arr = []
-        i = 0;
         for line in main:
             arr.append(line)
-            i = i+1
-            #print(line)
         self.main_text = " ".join(line for line in arr)
 
     def preprocess(self):
-        tokenizer = Okt()
-        self.token = tokenizer.morphs(self.main_text)
-        # 불용어 text(한국어는 직접 추가)
-        stop_word = "의 들 와 를 으로 했습니다 이고 인 이 가 께 에 께서 에서 입니다 요".split(' ')
+        self.token = self.my_tokenizer(self.main_text)
         # 불용어 제거 이중 for문 한 문장으로 처리
-        result = [word for word in self.token if not word in stop_word]
-        print(result)
+        self.result = [word for word in self.token if not word in self.stopwords]
 
+    def my_tokenizer(self, text):
+        tokenizer = Okt()
+        return [
+            token for token, pos in tokenizer.pos(text)
+            if pos in ['Noun', 'Alpha', 'Number']
+        ]
+        
     # def get_word_by_freqenncy()
-
-preprocessed = Preprocess()
-preprocessed.get_s3_file()
-preprocessed.csv_to_text()
-preprocessed.preprocess()
