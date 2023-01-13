@@ -73,6 +73,5 @@ crawl_sbs.crawling()
 prepross = Preprocess(s3)
 prepross.get_s3_file(now_date, crawl_sbs.filename)
 prepross.csv_to_text()
-prepross.preprocess()
-print(prepross.result)
+prepross.give_weight()
 ''' . . . 2. 일주일치 모든 언론사 파일 집합  . . . '''
