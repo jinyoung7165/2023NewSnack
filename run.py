@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 
 import press_crawl
 from s3_method import S3
-from prepros import Preprocess
-
+from doc_text import DocToText
+from sentence import Sentence
 # load .env
 load_dotenv()
 
@@ -58,8 +58,8 @@ class Crawl:
 
 s3 = S3() #s3 connection 1번
 
-crawl_sbs = Crawl("sbs")
-crawl_sbs.crawling()
+#crawl_sbs = Crawl("sbs")
+#crawl_sbs.crawling()
 
 ''' . . . 다른 언론사 crawl . . . '''
 
@@ -70,8 +70,8 @@ crawl_sbs.crawling()
 
 
 ''' . . . 1. 하루치 모든 언론사 파일/item_list 집합 -> 전처리 . . . '''
-prepross = Preprocess(s3)
-prepross.get_s3_file(now_date, crawl_sbs.filename)
-prepross.csv_to_text()
-prepross.give_weight()
+docToText = DocToText(s3)
+#sentence = Sentence(docToText, now_date, crawl_sbs.filename)
+sentence = Sentence(docToText, now_date, "sbs.csv")
+sentence.doc_process()
 ''' . . . 2. 일주일치 모든 언론사 파일 집합  . . . '''
