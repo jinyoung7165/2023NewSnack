@@ -14,7 +14,15 @@ class DocToText:
         self.main = self.s3_file['본문'].str.replace("[^A-Z a-z 0-9 가-힣 .]", "", regex=True)
         self.title = self.s3_file['제목'].str.replace("[^A-Z a-z 0-9 가-힣 .]", "", regex=True)
 
-    def my_tokenizer(self, text):
+    def sentence_tokenizer(self, text):
+        tokenizer = self.okt
+        return [
+            token for token, pos in tokenizer.pos(text, norm=True, stem=True)
+            if pos in ['Noun', 'Alpha', 'Number', 'Verb'] and # 명사, 영어, 숫자, 동사
+            token not in self.stopwords # 불용어 제거 이중 for문 한 문장으로 처리
+        ]
+        
+    def keyword_tokenizer(self, text):
         tokenizer = self.okt
         return [
             token for token, pos in tokenizer.pos(text)

@@ -6,66 +6,82 @@ from numpy.linalg import norm
 import pandas
 
 class Sentence:
-    def __init__(self, docToText: DocToText, date, filename):
+    def __init__(self, docToText: DocToText, model, date, filename):
         docToText.csv_to_text(date, filename)
         self.docToText = docToText
-        self.docs = list(docToText.main)
-        # 어제것도 갖고 와서 doc 합치는 코드 나중에 작성할 것
-        # docToText 의존도 낮추기
-        '''
-            나중에 하기. docToText나 self.멤버 만들지 말고 함수 매개변수로 전달할지도 나중에 생각
-        '''
+        self.docs = list(docToText.main) # ["첫번째 문서 두번째 문장", "두번째 문서 두번째 문장",]
+        self.model = model
         self.docs_df_arr = [] #전체 문서 df 저장
-        
+
     def doc_process(self):
         # 한 문서에서 문장 리스트 뽑음
         for doc in self.docs:
-            self.text = doc.split('.')
-            self.preprocess(self.docToText)
-            self.tfidf()
-            self.get_sentence_similarity()
-        print(self.docs_df_arr[3])
+            self.word_lines = [] # ["첫번째 문서", "두번째 문장"]
+            self.line_word = [] #문장별 단어 배열 #[["첫번째", "문서"], ["두번째", "문장]]
             
-    def preprocess(self, docToText: DocToText): #각 문장에서 형태소 분석 + 불용어 제거
-        tokenizer = docToText.okt
-        preprocess_arr = [] #preprocess:[["앵커","어쩌고"], ]
-        for line in self.text: #한 줄씩 처리 line:"앵커 어쩌고입니다"
-            token = tokenizer.morphs(line) #token: 앵커, 어쩌고, 입니다
-            preprocess_arr.append([word for word in token if not word in docToText.stopwords])
-        
-        # 각 문장당 단어 배열 -> 한 문장으로 만들기[['앵커'], ['바람']] ->['앵커 바람']
-        self.word_lines = []
-        for word_list in preprocess_arr:
-            word_line = ' '.join(word_list)
-            self.word_lines.append(word_line)
+            row = doc.split('.')
+            self.preprocess(self.docToText, row)
+            
+            self.line_count = len(self.word_lines) #문장 수
+            self.statistical_similarity(self.tfidf()) #통계적 유사도
+            self.semantic_similarity() #의미적 유사도
 
-    def tfidf(self):
+        print(self.word_lines)
+        print(self.docs_df_arr[-1])
+            
+    def preprocess(self, docToText: DocToText, row): #문서 내 각 열(row)의 문장(line) 형태소 분석 + 불용어 제거
+        for line in row: #한 줄씩 처리 line:"앵커 어쩌고입니다"
+            after_stopword = self.docToText.sentence_tokenizer(line)
+            if after_stopword:
+                self.line_word.append(after_stopword)
+                self.word_lines.append(' '.join(after_stopword))
+
+    def tfidf(self): #한 문서의 wordline에 대한 tfidf arr 리턴
         tfidf = TfidfVectorizer().fit(self.word_lines)
-        self.tfidf_arr = tfidf.transform(self.word_lines).toarray()
+        return tfidf.transform(self.word_lines).toarray()
 
-    def get_sentence_similarity(self):
+    def nparr_to_dataframe(self, arr):
+        nparr = np.array(arr).reshape(self.line_count, self.line_count) # line수 * line수 배열로 만듦
+        # 각 line별 유사도 합 구해서 배열에 넣기
+        total_arr = nparr.sum(axis=1)
+        nparr_total = np.array(total_arr).reshape(-1,1)
+        result_arr = np.hstack((nparr, nparr_total)).reshape(self.line_count, self.line_count + 1)
+        data_frame = pandas.DataFrame(result_arr, 
+                                    index=[i for i in range(self.line_count)],
+                                    columns = [i for i in range(self.line_count + 1)])
+        # data_frame.sort_values(line_count, ascending=False)
+        self.docs_df_arr.append(data_frame)
+            
+    def statistical_similarity(self, tfidf_arr): #문장 수, tfidf
         def cosine_similarity(sentence1, sentence2):
             norms = norm(sentence1) * norm(sentence2)
             if norms == 0: return 0
             return dot(sentence1, sentence2) / norms
-        def nparr_to_dataframe(result_arr, line_count):
-            data_frame = pandas.DataFrame(result_arr, 
-                                        index=[i for i in range(line_count)], 
-                                        columns = [i for i in range(line_count + 1)])
-            # data_frame.sort_values(line_count, ascending=False)
-            self.docs_df_arr.append(data_frame)
-        arr = []
-        line_count = len(self.word_lines)
-        
-        for i in range(line_count):
-            for j in range(line_count):
-                arr.append(cosine_similarity(self.tfidf_arr[i], self.tfidf_arr[j]))
 
-        nparr = np.array(arr).reshape(line_count, line_count) # line수 * line수 배열로 만듦
-        
-        # 각 line별 cosine유사도 합 구해서 배열에 넣기
-        total_arr = nparr.sum(axis=0)
-        nparr_total = np.array(total_arr).reshape(-1,1)
-        result_arr = np.hstack((nparr, nparr_total)).reshape(line_count, line_count + 1)
+        arr = []
+        for i in range(self.line_count):
+            for j in range(self.line_count):
+                arr.append(cosine_similarity(tfidf_arr[i], tfidf_arr[j]))
  
-        nparr_to_dataframe(result_arr, line_count)
+        self.nparr_to_dataframe(arr)
+
+    def semantic_similarity(self): #문서 내 각 행의 단어들끼리 의미적 유사도 비교
+        arr = [[0]*self.line_count for _ in range(self.line_count)]
+        # i행의 단어 n개* j행의 단어 m개 비교 -> ij간 단어a->단어b최대 유사도의 mean
+        for i in range(self.line_count):
+            size_a = len(self.line_word[i]) #A문장 단어 수
+            for j in range(self.line_count):
+                if i == j: continue #같은 문장일 경우 비교x
+                sum_a = 0 #i<->j행의 단어들에 대한 최대 유사도 합
+                for word_a in self.line_word[i]: #i행의 단어 a
+                    max_sim = -float('inf') #word_a와 가장 유사한 word_b와의 유사도
+                    
+                    for word_b in self.line_word[j]: #j행의 단어 b
+                        try: 
+                            max_sim = max(max_sim, self.model.wv.similarity(word_a, word_b))
+                        except KeyError: max_sim = max(max_sim, 0)
+                    sum_a += max_sim
+                    
+                arr[i][j] = sum_a / size_a
+        
+        self.nparr_to_dataframe(arr)

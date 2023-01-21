@@ -8,6 +8,7 @@ import press_crawl
 from s3_method import S3
 from doc_text import DocToText
 from sentence import Sentence
+from custom_word2vec import customWord2Vec
 # load .env
 load_dotenv()
 
@@ -50,9 +51,9 @@ class Crawl:
                 item.append(sbs.get_news_content(self.driver))
         
         self.driver.quit()
-        self.convert_xslx()
+        self.convert_csv()
         
-    def convert_xslx(self):
+    def convert_csv(self):
         result = pd.DataFrame(self.item_list, columns = label)
         result.to_csv(self.filename, encoding="utf-8-sig")  
 
@@ -61,17 +62,21 @@ s3 = S3() #s3 connection 1번
 #crawl_sbs = Crawl("sbs")
 #crawl_sbs.crawling()
 
-''' . . . 다른 언론사 crawl . . . '''
+''' . . . 오늘 뉴스 crawl + 파일 저장 . . . '''
 
 #s3.s3_upload_file(now_date, crawl_sbs.filename)
 # 날짜/sbs.csv
 
-''' . . . 다른 언론사 파일 저장 . . . '''
-
-
-''' . . . 1. 하루치 모든 언론사 파일/item_list 집합 -> 전처리 . . . '''
 docToText = DocToText(s3)
+
+word2vec = customWord2Vec(docToText)
+word2vec.custom_train()
+
+''' . . . 1일치 언론사 뉴스 -> 전처리 . . . '''
+
 #sentence = Sentence(docToText, now_date, crawl_sbs.filename)
-sentence = Sentence(docToText, now_date, "sbs.csv")
+sentence = Sentence(docToText, word2vec.model, "2023-01-20", "sbs.csv")
 sentence.doc_process()
-''' . . . 2. 일주일치 모든 언론사 파일 집합  . . . '''
+
+
+''' . . . 3일치 언론사 뉴스로 확대 . . . '''
