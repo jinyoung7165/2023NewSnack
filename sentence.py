@@ -4,18 +4,19 @@ import numpy as np
 from numpy import dot
 from numpy.linalg import norm
 import pandas
+from collections import defaultdict
 
 class Sentence:
     def __init__(self, docToText: DocToText, model, date, filename):
         docToText.csv_to_text(date, filename)
         self.docToText = docToText
-        self.docs = list(docToText.main) # ["첫번째 문서 두번째 문장", "두번째 문서 두번째 문장",]
+        self.docs = list(docToText.main) # ["첫번째 문서 두번째 문장 중복 문장", "두번째 문서 두번째 문장",]
         self.model = model
-        
-        self.doc_count = 0 #문서 수
-        self.docs_df_arr = dict() #문서별 문장유사도 df 저장
 
-    def doc_process(self):
+        self.docs_word_arr = defaultdict(list) #문서별 가진 단어 배열
+        #문서별 문장 list 저장 # {0: ["첫번째", "문서", "두번째", "문장", "중복", "문장"]}
+
+    def doc_process(self): # -> 모든 문서에 대해 문장유사도 df뽑을꺼 필ㅇ없는 문장 제거
         # 한 문서에서 문장 리스트 뽑음
         for idx, doc in enumerate(self.docs): #idx:문서 번호 - 전처리 후 문장 0개면 pass할 거라 문서번호까지 df에 나타내자
             self.word_lines = [] # ["첫번째 문서", "두번째 문장"]
@@ -23,17 +24,18 @@ class Sentence:
             
             row = doc.split('.')
             self.preprocess(row)
-            
             self.line_count = len(self.word_lines) #문장 수
             if not self.line_count: continue
             
             df1 = self.statistical_similarity(self.tfidf()) #통계적 유사도
             df2 = self.semantic_similarity() #의미적 유사도
-            if idx == 0 : print(df1, df2)
-            self.docs_df_arr[idx] = pandas.merge(df1, df2)
-
-        print(self.word_lines)
-        print(self.docs_df_arr[0])
+            
+            sum_df = df1.add(df2) #유사도 결합
+            delete_count = int(self.line_count*0.14) if self.line_count*0.14 > 1 else 1 #제거할 줄 수
+            delete_idx_arr = sum_df.sort_values(by=self.line_count, ascending=True).head(delete_count).index #제거할 줄의 idx
+            for i in range(self.line_count):
+                if i not in delete_idx_arr:
+                    self.docs_word_arr[idx].extend(self.line_word[i])
             
     def preprocess(self, row): #문서 내 각 열(row)의 문장(line) 형태소 분석 + 불용어 제거
         for line in row: #한 줄씩 처리 line:"앵커 어쩌고입니다"
@@ -55,7 +57,6 @@ class Sentence:
         data_frame = pandas.DataFrame(result_arr, 
                                     index=[i for i in range(self.line_count)],
                                     columns = [i for i in range(self.line_count + 1)])
-        # data_frame.sort_values(line_count, ascending=False)
         return data_frame
             
     def statistical_similarity(self, tfidf_arr): #문장 수, tfidf

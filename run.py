@@ -77,6 +77,7 @@ word2vec.custom_train()
 #sentence = Sentence(docToText, now_date, crawl_sbs.filename)
 sentence = Sentence(docToText, word2vec.model, "2023-01-20", "sbs.csv")
 sentence.doc_process()
-
+# print(sentence.docs_word_arr.keys())
+# print(sentence.docs_word_arr[1])
 
 ''' . . . 3일치 언론사 뉴스로 확대 . . . '''
