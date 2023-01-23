@@ -5,7 +5,9 @@ from numpy import dot
 from numpy.linalg import norm
 import pandas
 from collections import defaultdict
+from functools import lru_cache
 
+@lru_cache(maxsize=3)
 class Sentence:
     def __init__(self, docToText: DocToText, model, date, filename):
         docToText.csv_to_text(date, filename)
@@ -15,7 +17,8 @@ class Sentence:
 
         self.docs_word_arr = defaultdict(list) #문서별 가진 단어 배열
         #문서별 문장 list 저장 # {0: ["첫번째", "문서", "두번째", "문장", "중복", "문장"]}
-
+        
+    @lru_cache(maxsize=3)
     def doc_process(self): # -> 모든 문서에 대해 문장유사도 df뽑을꺼 필ㅇ없는 문장 제거
         # 한 문서에서 문장 리스트 뽑음
         for idx, doc in enumerate(self.docs): #idx:문서 번호 - 전처리 후 문장 0개면 pass할 거라 문서번호까지 df에 나타내자
@@ -36,7 +39,7 @@ class Sentence:
             for i in range(self.line_count):
                 if i not in delete_idx_arr:
                     self.docs_word_arr[idx].extend(self.line_word[i])
-            
+                    
     def preprocess(self, row): #문서 내 각 열(row)의 문장(line) 형태소 분석 + 불용어 제거
         for line in row: #한 줄씩 처리 line:"앵커 어쩌고입니다"
             after_stopword = self.docToText.sentence_tokenizer(line)
