@@ -3,6 +3,7 @@ from tempfile import mkdtemp
 import datetime
 import pandas as pd
 from dotenv import load_dotenv
+import collections
 
 import press_crawl
 from s3_method import S3
@@ -74,10 +75,29 @@ word2vec.custom_train()
 
 ''' . . . 1일치 언론사 뉴스 -> 전처리 . . . '''
 
-#sentence = Sentence(docToText, now_date, crawl_sbs.filename)
-sentence = Sentence(docToText, word2vec.model, "2023-01-20", "sbs.csv")
-sentence.doc_process()
-# print(sentence.docs_word_arr.keys())
-# print(sentence.docs_word_arr[1])
-
+# sentence = Sentence(docToText, now_date, crawl_sbs.filename)
+# sentence = Sentence(docToText, word2vec.model, "2023-01-20", "sbs.csv")
+# sentence.doc_process()
 ''' . . . 3일치 언론사 뉴스로 확대 . . . '''
+
+# 1. 3일치 날짜 받아오기
+delta = datetime.timedelta(days=1) # 1일 후
+delta2 = datetime.timedelta(days=2) # 테스트를 위해 임시로 해놓은 것
+end_date = datetime.datetime.now() - delta2 # 1/21
+today = end_date - datetime.timedelta(days=1) # 1/20
+
+doc_word_dict = collections.defaultdict(list)
+while True:
+    sentence = Sentence(docToText, word2vec.model, "{}".format(today.date()), "sbs.csv")
+    sentence.doc_process()
+    year = today.strftime("%Y")
+    month = today.strftime("%m")
+    day = today.strftime("%d")
+    today_name = year+"-"+month+"-"+day
+    for doc_idx in sentence.docs_word_arr.keys():
+        key = today_name + "/" + str(doc_idx)# "날짜/문서번호"
+        doc_word_dict[key] = sentence.docs_word_arr[doc_idx]
+    if (today.date() == end_date.date()):
+        break
+    today += delta # 하루씩 증가
+print(doc_word_dict)
