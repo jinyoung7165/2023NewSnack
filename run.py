@@ -4,7 +4,9 @@ import datetime
 import pandas as pd
 from dotenv import load_dotenv
 import collections
+from sklearn.feature_extraction.text import TfidfVectorizer
 
+from doc_tfidf import DocTfidf
 import press_crawl
 from s3_method import S3
 from doc_text import DocToText
@@ -80,11 +82,13 @@ word2vec.custom_train()
 # sentence.doc_process()
 ''' . . . 3일치 언론사 뉴스로 확대 . . . '''
 def get_3days_word():
+    doc_word_dict = collections.defaultdict(list)
+    tfidf_target_word = []
     delta = datetime.timedelta(days=1) # 1일 후
-    delta2 = datetime.timedelta(days=2) # 테스트를 위해 임시로 해놓은 것
+    delta2 = datetime.timedelta(days=3) # 테스트를 위해 임시로 해놓은 것
     end_date = datetime.datetime.now() - delta2 # 1/21
     today = end_date - datetime.timedelta(days=1) # 1/20
-    doc_word_dict = collections.defaultdict(list)
+    
     while True:
         sentence = Sentence(docToText, word2vec.model, "{}".format(today.date()), "sbs.csv")
         sentence.doc_process()
@@ -98,6 +102,18 @@ def get_3days_word():
         if (today.date() == end_date.date()):
             break
         today += delta # 하루씩 증가
-    print(doc_word_dict)
-    
-get_3days_word()
+
+    def tfidf(doc): #한 문서의 wordline에 대한 tfidf arr 리턴
+        tfidf = TfidfVectorizer().fit(doc)
+        return tfidf.transform(doc).toarray()
+        # return tfidf.vocabulary_
+
+    # 1차원 배열로 만들기(tf-idf를 위해서)
+    for word in doc_word_dict.values():
+        text = ' '.join(li for li in word)
+        tfidf_target_word.append(text)
+
+    return tfidf(tfidf_target_word)
+
+target = get_3days_word()
+# print(target)
