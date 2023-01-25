@@ -1,5 +1,4 @@
 from doc_text import DocToText
-from s3_method import S3
 import datetime
 from gensim.models import Word2Vec
 
@@ -35,7 +34,7 @@ class customWord2Vec:
            
             
             # 만약 end_date에 다다르면 while문 종료
-            if(now_date.date() == end_date.date()):
+            if(now_date.date() == now_date.date()): #end_date랑 비교하는 거 하루치만 학습하려고 임시로 바꿔놨음
                 break
             now_date += delta # 1일씩 증가해주기
             
