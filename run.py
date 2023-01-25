@@ -60,32 +60,27 @@ class Crawl:
         result = pd.DataFrame(self.item_list, columns = label)
         result.to_csv(self.filename, encoding="utf-8-sig")  
 
-s3 = S3() #s3 connection 1번
-
-#crawl_sbs = Crawl("sbs")
-#crawl_sbs.crawling()
-
-''' . . . 오늘 뉴스 crawl + 파일 저장 . . . '''
-
-#s3.s3_upload_file(now_date, crawl_sbs.filename)
-# 날짜/sbs.csv
-
-docToText = DocToText(s3)
-
-word2vec = customWord2Vec(docToText)
-word2vec.custom_train()
-
-''' . . . 1일치 언론사 뉴스 -> 전처리 . . . '''
-
-# sentence = Sentence(docToText, now_date, crawl_sbs.filename)
-# sentence = Sentence(docToText, word2vec.model, "2023-01-20", "sbs.csv")
-# sentence.doc_process()
 ''' . . . 3일치 언론사 뉴스로 확대 . . . '''
-def get_3days_word():
+def main():
+    s3 = S3() #s3 connection 1번
+
+    #crawl_sbs = Crawl("sbs")
+    #crawl_sbs.crawling()
+
+    ''' . . . 오늘 뉴스 crawl + 파일 저장 . . . '''
+
+    #s3.s3_upload_file(now_date, crawl_sbs.filename)
+    # 날짜/sbs.csv
+
+    docToText = DocToText(s3)
+
+    word2vec = customWord2Vec(docToText)
+    word2vec.custom_train()
+
     doc_word_dict = collections.defaultdict(list)
     tfidf_target_word = []
     delta = datetime.timedelta(days=1) # 1일 후
-    delta2 = datetime.timedelta(days=3) # 테스트를 위해 임시로 해놓은 것
+    delta2 = datetime.timedelta(days=4) # 테스트를 위해 임시로 해놓은 것
     end_date = datetime.datetime.now() - delta2 # 1/21
     today = end_date - datetime.timedelta(days=1) # 1/20
     
@@ -114,6 +109,5 @@ def get_3days_word():
         tfidf_target_word.append(text)
 
     return tfidf(tfidf_target_word)
-
-target = get_3days_word()
-# print(target)
+if __name__ == '__main__':
+    target = main()
