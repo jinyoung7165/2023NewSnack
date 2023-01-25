@@ -1,14 +1,13 @@
+from arr_util import ArrUtil
 from doc_text import DocToText
 from sklearn.feature_extraction.text import TfidfVectorizer
-import numpy as np
 from numpy import dot
 from numpy.linalg import norm
-import pandas
 from collections import defaultdict
 from functools import lru_cache
 
 @lru_cache(maxsize=3)
-class Sentence:
+class Sentence(ArrUtil):
     def __init__(self, docToText: DocToText, model, date, filename):
         docToText.csv_to_text(date, filename)
         self.docToText = docToText
@@ -51,17 +50,6 @@ class Sentence:
         tfidf = TfidfVectorizer().fit(self.word_lines)
         return tfidf.transform(self.word_lines).toarray()
 
-    def nparr_to_dataframe(self, arr):
-        nparr = np.array(arr).reshape(self.line_count, self.line_count) # line수 * line수 배열로 만듦
-        # 각 line별 유사도 합 구해서 배열에 넣기
-        total_arr = nparr.sum(axis=1)
-        nparr_total = np.array(total_arr).reshape(-1,1)
-        result_arr = np.hstack((nparr, nparr_total)).reshape(self.line_count, self.line_count + 1)
-        data_frame = pandas.DataFrame(result_arr, 
-                                    index=[i for i in range(self.line_count)],
-                                    columns = [i for i in range(self.line_count + 1)])
-        return data_frame
-            
     def statistical_similarity(self, tfidf_arr): #문장 수, tfidf
         def cosine_similarity(sentence1, sentence2):
             norms = norm(sentence1) * norm(sentence2)
@@ -73,7 +61,7 @@ class Sentence:
             for j in range(self.line_count):
                 arr.append(cosine_similarity(tfidf_arr[i], tfidf_arr[j]))
  
-        return self.nparr_to_dataframe(arr)
+        return self.nparr_to_dataframe(arr, self.line_count, self.line_count)
 
     def semantic_similarity(self): #문서 내 각 행의 단어들끼리 의미적 유사도 비교
         arr = [[0]*self.line_count for _ in range(self.line_count)]
@@ -94,4 +82,4 @@ class Sentence:
                     
                 arr[i][j] = sum_a / size_a
         
-        return self.nparr_to_dataframe(arr)
+        return self.nparr_to_dataframe(arr, self.line_count, self.line_count)

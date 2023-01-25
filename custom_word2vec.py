@@ -21,11 +21,10 @@ class customWord2Vec:
         # delta = datetime.timedelta(days=1) # 1일 후
         
         delta = datetime.timedelta(days=1) # 1일 후
-        delta2 = datetime.timedelta(days=4)
+        delta2 = datetime.timedelta(days=5)
         end_date = datetime.datetime.now() - delta2 # 1/21
         now_date = end_date - datetime.timedelta(days=1) # 1/20
         while True:
-            # print(now_date.date())
             self.docToText.csv_to_text("{}".format(now_date.date()), "sbs.csv")
             self.docs = list(self.docToText.main) # ["첫번째 문서 두번째 문장", "두번째 문서 두번째 문장",]
             for doc in self.docs:
@@ -40,9 +39,3 @@ class customWord2Vec:
             
          # skip-gram이 좋은 것 같다.'외교부'는 '이란'이 가장 동일하게 나옴
         self.model = Word2Vec(sentences = whole_word, vector_size=10, min_count = 1, window = 5, workers = 4, sg = 1) 
-    
-
-# s = S3()
-# d = DocToText(s)
-# w = customWord2Vec(d)
-# w.custom_train()

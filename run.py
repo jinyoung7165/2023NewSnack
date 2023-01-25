@@ -4,7 +4,6 @@ import datetime
 import pandas as pd
 from dotenv import load_dotenv
 import collections
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 from doc_tfidf import DocTfidf
 import press_crawl
@@ -78,9 +77,9 @@ def main():
     word2vec.custom_train()
 
     doc_word_dict = collections.defaultdict(list)
-    tfidf_target_word = []
+
     delta = datetime.timedelta(days=1) # 1일 후
-    delta2 = datetime.timedelta(days=4) # 테스트를 위해 임시로 해놓은 것
+    delta2 = datetime.timedelta(days=5) # 테스트를 위해 임시로 해놓은 것
     end_date = datetime.datetime.now() - delta2 # 1/21
     today = end_date - datetime.timedelta(days=1) # 1/20
     
@@ -94,20 +93,13 @@ def main():
         for doc_idx in sentence.docs_word_arr.keys():
             key = today_name + "/" + str(doc_idx)# "날짜/문서번호"
             doc_word_dict[key] = sentence.docs_word_arr[doc_idx]
-        if (today.date() == end_date.date()):
+        if (today.date() == today.date()):
             break
         today += delta # 하루씩 증가
+    
+    doc_tfidf = DocTfidf(word2vec.model, doc_word_dict)
+    doc_tfidf.final_word_process()
+    doc_tfidf.hot_topic()
 
-    def tfidf(doc): #한 문서의 wordline에 대한 tfidf arr 리턴
-        tfidf = TfidfVectorizer().fit(doc)
-        return tfidf.transform(doc).toarray()
-        # return tfidf.vocabulary_
-
-    # 1차원 배열로 만들기(tf-idf를 위해서)
-    for word in doc_word_dict.values():
-        text = ' '.join(li for li in word)
-        tfidf_target_word.append(text)
-
-    return tfidf(tfidf_target_word)
 if __name__ == '__main__':
     target = main()
