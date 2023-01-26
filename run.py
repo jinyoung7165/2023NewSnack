@@ -3,11 +3,14 @@ from tempfile import mkdtemp
 import datetime
 import pandas as pd
 from dotenv import load_dotenv
+import collections
 
+from doc_tfidf import DocTfidf
 import press_crawl
 from s3_method import S3
-from prepros import Preprocess
-
+from doc_text import DocToText
+from sentence import Sentence
+from custom_word2vec import customWord2Vec
 # load .env
 load_dotenv()
 
@@ -50,28 +53,53 @@ class Crawl:
                 item.append(sbs.get_news_content(self.driver))
         
         self.driver.quit()
-        self.convert_xslx()
+        self.convert_csv()
         
-    def convert_xslx(self):
+    def convert_csv(self):
         result = pd.DataFrame(self.item_list, columns = label)
         result.to_csv(self.filename, encoding="utf-8-sig")  
 
-s3 = S3() #s3 connection 1번
+''' . . . 3일치 언론사 뉴스로 확대 . . . '''
+def main():
+    s3 = S3() #s3 connection 1번
 
-crawl_sbs = Crawl("sbs")
-crawl_sbs.crawling()
+    #crawl_sbs = Crawl("sbs")
+    #crawl_sbs.crawling()
 
-''' . . . 다른 언론사 crawl . . . '''
+    ''' . . . 오늘 뉴스 crawl + 파일 저장 . . . '''
 
-#s3.s3_upload_file(now_date, crawl_sbs.filename)
-# 날짜/sbs.csv
+    #s3.s3_upload_file(now_date, crawl_sbs.filename)
+    # 날짜/sbs.csv
 
-''' . . . 다른 언론사 파일 저장 . . . '''
+    docToText = DocToText(s3)
 
+    word2vec = customWord2Vec(docToText)
+    word2vec.custom_train()
 
-''' . . . 1. 하루치 모든 언론사 파일/item_list 집합 -> 전처리 . . . '''
-prepross = Preprocess(s3)
-prepross.get_s3_file(now_date, crawl_sbs.filename)
-prepross.csv_to_text()
-prepross.give_weight()
-''' . . . 2. 일주일치 모든 언론사 파일 집합  . . . '''
+    doc_word_dict = collections.defaultdict(list)
+
+    delta = datetime.timedelta(days=1) # 1일 후
+    delta2 = datetime.timedelta(days=5) # 테스트를 위해 임시로 해놓은 것
+    end_date = datetime.datetime.now() - delta2 # 1/21
+    today = end_date - datetime.timedelta(days=1) # 1/20
+    
+    while True:
+        sentence = Sentence(docToText, word2vec.model, "{}".format(today.date()), "sbs.csv")
+        sentence.doc_process()
+        year = today.strftime("%Y")
+        month = today.strftime("%m")
+        day = today.strftime("%d")
+        today_name = year+"-"+month+"-"+day
+        for doc_idx in sentence.docs_word_arr.keys():
+            key = today_name + "/" + str(doc_idx)# "날짜/문서번호"
+            doc_word_dict[key] = sentence.docs_word_arr[doc_idx]
+        if (today.date() == today.date()):
+            break
+        today += delta # 하루씩 증가
+    
+    doc_tfidf = DocTfidf(word2vec.model, doc_word_dict)
+    doc_tfidf.final_word_process()
+    doc_tfidf.hot_topic()
+
+if __name__ == '__main__':
+    target = main()
