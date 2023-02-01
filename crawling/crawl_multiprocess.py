@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 import requests
 import re
 from s3_method import S3
+from threading import Thread
+
 # load .env
 load_dotenv()
 
@@ -29,20 +31,38 @@ def current_page_items(pageIdx, return_list): #전체페이지에서 각 기사�
         time.sleep(1.5)
         
         all_items = all_html.select("div.list_body.newsflash_body > ul.type06_headline > li > dl")
-        
-        for item in all_items:
+                
+        def get_press_url(item, return_list):
             item_press = item.select("dd > span.writing")[0].text
             photo_or_not = item.select("dt")
             url_headline = photo_or_not[1].find("a") if len(photo_or_not) > 1 \
                 else photo_or_not[0].find("a") #대표 사진 없는 기사
             item_url = url_headline.get("href")
             return_list.append([item_url, item_press]) #링크, 언론사
+
+        ths = []
+        for item in all_items:
+            th = Thread(target=get_press_url, args=(item, return_list))
+            th.start()
+            ths.append(th)
+        for th in ths:
+            th.join()
+
                         
     except Exception as e:
         print(e)
         return False
 
-def get_news_content(idx, return_list): #각 기사에서 뉴스 전문 가져옴
+def get_news_content_thread(idx, return_list, return_len): #각 기사에서 뉴스 전문 가져옴(idx 3개씩 건너뛰면서 순회)
+    ths = []
+    for idx_thread in range(idx, return_len, return_len//2 - 1):
+        th = Thread(target=get_news_content, args=(idx_thread, return_list))
+        th.start()
+        ths.append(th)
+    for th in ths:
+        th.join()
+            
+def get_news_content(idx, return_list):
     try:
         news = requests.get(return_list[idx][0], headers={'User-Agent': 'Mozilla/5.0'})
         news_html = BeautifulSoup(news.text, "html.parser")
@@ -91,12 +111,11 @@ def crawl():
 
     ''' . . . 오늘 뉴스 crawl + 파일 저장 . . . '''
     pool = Pool(3)
-    pool.map(partial(current_page_items, return_list=return_list), range(1, 50)) #70p까지만 보자 -> 3시 돌려보고 false 보통 어디 페이진지 파악하기
-
-    pool.map(partial(get_news_content, return_list=return_list), range(len(return_list)))
-
+    
+    pool.map(partial(current_page_items, return_list=return_list), range(1, 50)) #50p까지만 보자
+    pool.map(partial(get_news_content_thread, return_list=return_list, return_len=len(return_list)), range(len(return_list)//2 - 1))
     convert_csv(list(return_list))
-  
+    
 if __name__ == '__main__':
     s3 = S3() #s3 connection 1번
     target = crawl()
