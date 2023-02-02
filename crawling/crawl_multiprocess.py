@@ -2,13 +2,13 @@ from functools import partial
 import datetime
 import pandas as pd
 from dotenv import load_dotenv
+from s3_method import S3
 import time
+from threading import Thread
 from multiprocessing import Manager, Pool
 from bs4 import BeautifulSoup
 import requests
 import re
-from s3_method import S3
-from threading import Thread
 
 # load .env
 load_dotenv()
@@ -32,7 +32,7 @@ def current_page_items(pageIdx, return_list): #전체페이지에서 각 기사�
         
         all_items = all_html.select("div.list_body.newsflash_body > ul.type06_headline > li > dl")
                 
-        def get_press_url(item, return_list):
+        def get_press_url_thread(item, return_list):
             item_press = item.select("dd > span.writing")[0].text
             photo_or_not = item.select("dt")
             url_headline = photo_or_not[1].find("a") if len(photo_or_not) > 1 \
@@ -42,7 +42,7 @@ def current_page_items(pageIdx, return_list): #전체페이지에서 각 기사�
 
         ths = []
         for item in all_items:
-            th = Thread(target=get_press_url, args=(item, return_list))
+            th = Thread(target=get_press_url_thread, args=(item, return_list))
             th.start()
             ths.append(th)
         for th in ths:
