@@ -1,16 +1,21 @@
-from arr_util import ArrUtil
-from doc_text import DocToText
 from sklearn.feature_extraction.text import TfidfVectorizer
 from numpy import dot
 from numpy.linalg import norm
 from collections import defaultdict
 from functools import lru_cache
 
+import sys, os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from weighting.arr_util import ArrUtil
+from preprocess.doc_text import DocToText
+from preprocess.tokenizer import Tokenizer
+
 @lru_cache(maxsize=3)
 class Sentence(ArrUtil):
-    def __init__(self, docToText: DocToText, model, date, filename):
+    def __init__(self, docToText: DocToText, tokenizer: Tokenizer, model, date, filename):
         docToText.csv_to_text(date, filename)
         self.docToText = docToText
+        self.tokenizer = tokenizer
         self.docs = list(docToText.main) # ["첫번째 문서 두번째 문장 중복 문장", "두번째 문서 두번째 문장",]
         self.model = model
 
@@ -31,7 +36,6 @@ class Sentence(ArrUtil):
             
             df1 = self.statistical_similarity(self.tfidf()) #통계적 유사도
             df2 = self.semantic_similarity() #의미적 유사도
-            
             sum_df = df1.add(df2) #유사도 결합
             delete_count = int(self.line_count*0.14) if self.line_count*0.14 > 1 else 1 #제거할 줄 수
             delete_idx_arr = sum_df.sort_values(by=self.line_count, ascending=True).head(delete_count).index #제거할 줄의 idx
@@ -41,7 +45,7 @@ class Sentence(ArrUtil):
                     
     def preprocess(self, row): #문서 내 각 열(row)의 문장(line) 형태소 분석 + 불용어 제거
         for line in row: #한 줄씩 처리 line:"앵커 어쩌고입니다"
-            after_stopword = self.docToText.sentence_tokenizer(line)
+            after_stopword = self.tokenizer.sentence_tokenizer(line)
             if after_stopword:
                 self.line_word.append(after_stopword)
                 self.word_lines.append(' '.join(after_stopword))

@@ -2,7 +2,7 @@ import datetime
 import os
 from dotenv import load_dotenv
 
-from s3_method import S3
+from training.s3_method import S3
 from crawl import Crawl
 # load .env
 load_dotenv()
