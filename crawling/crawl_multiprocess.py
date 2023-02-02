@@ -1,14 +1,17 @@
 from functools import partial
 import datetime
 import pandas as pd
-from dotenv import load_dotenv
-from s3_method import S3
 import time
 from threading import Thread
 from multiprocessing import Manager, Pool
 from bs4 import BeautifulSoup
 import requests
 import re
+
+from dotenv import load_dotenv
+import sys, os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from remote.s3_method import S3
 
 # load .env
 load_dotenv()
