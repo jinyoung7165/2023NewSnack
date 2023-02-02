@@ -2,9 +2,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from numpy import dot
 from numpy.linalg import norm
 from collections import defaultdict
-from functools import lru_cache, partial
-from pathos.multiprocessing import ProcessingPool as Pool
-import time
+from functools import lru_cache
 
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -38,7 +36,6 @@ class Sentence(ArrUtil):
             
             df1 = self.statistical_similarity(self.tfidf()) #통계적 유사도
             df2 = self.semantic_similarity() #의미적 유사도
-            
             sum_df = df1.add(df2) #유사도 결합
             delete_count = int(self.line_count*0.14) if self.line_count*0.14 > 1 else 1 #제거할 줄 수
             delete_idx_arr = sum_df.sort_values(by=self.line_count, ascending=True).head(delete_count).index #제거할 줄의 idx
@@ -78,19 +75,15 @@ class Sentence(ArrUtil):
             for j in range(self.line_count):
                 if i == j: continue #같은 문장일 경우 비교x
                 sum_a = 0 #i<->j행의 단어들에 대한 최대 유사도 합
-                
-                pool = Pool(3)
-                sum_a += pool.map(partial(word_comparison, line_word_j=self.line_word[j], model=self.model), self.line_word[i])[0]
-
+                for word_a in self.line_word[i]: #i행의 단어 a
+                    max_sim = -float('inf') #word_a와 가장 유사한 word_b와의 유사도
+                    
+                    for word_b in self.line_word[j]: #j행의 단어 b
+                        try: 
+                            max_sim = max(max_sim, self.model.wv.similarity(word_a, word_b))
+                        except KeyError: max_sim = max(max_sim, 0)
+                    sum_a += max_sim
+                    
                 arr[i][j] = sum_a / size_a
-                
+        
         return self.nparr_to_dataframe(arr, self.line_count, self.line_count)
-
-def word_comparison(a, line_word_j, model): #i행의 단어 a, j행의 단어들에 대한 최대 유사도 합
-    max_sim = -float('inf') #word_a와 가장 유사한 word_b와의 유사도
-    
-    for word_b in line_word_j: #j행의 단어 b
-        try: 
-            max_sim = max(max_sim, model.wv.similarity(a, word_b))
-        except KeyError: max_sim = max(max_sim, 0)
-    return max_sim

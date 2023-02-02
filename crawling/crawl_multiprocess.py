@@ -20,10 +20,7 @@ date = datetime.datetime.now()
 
 label = ["링크", "언론사", "제목", "날짜", "본문"]
 filename = 'naver_news.csv'
-year = date.strftime("%Y")
-month = date.strftime("%m")
-day = date.strftime("%d")
-today = year+month+day
+today = date.strftime("%Y%m%d")
 
 now_date = date.date()
 def current_page_items(pageIdx, return_list): #전체페이지에서 각 기사의 링크, 메타데이터 저장해둠

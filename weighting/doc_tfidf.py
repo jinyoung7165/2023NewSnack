@@ -25,7 +25,7 @@ class DocTfidf(ArrUtil): #전체 문서 기준
         tfidf_target_word = [] #각 문서의 모든 word로 이뤄진 문장 배열
         # 1차원 배열로 만들기(tf-idf를 위해서)
         for word in self.doc_word_dict.values():
-            text = ' '.join(li for li in word)
+            text = ' '.join(word)
             tfidf_target_word.append(text)
         #전체 문서의 wordline에 대한 tfidf arr 리턴
         tfidf = TfidfVectorizer(max_features=1000, min_df=5, max_df=0.5).fit(tfidf_target_word)
@@ -33,7 +33,7 @@ class DocTfidf(ArrUtil): #전체 문서 기준
         tfidf_arr = tfidf.transform(tfidf_target_word).toarray()
         
         self.len_word = len(self.word_list) # 단어 개수
-        return self.nparr_to_dataframe(tfidf_arr, self.len_doc, self.len_word )
+        return self.nparr_to_dataframe(tfidf_arr, self.len_doc, self.len_word)
         
     def semantic_similarity(self):
         arr = [[0]*self.len_word for _ in range(self.len_doc)] #tfidf랑 결합할 의미 벡터
