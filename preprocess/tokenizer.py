@@ -6,10 +6,9 @@ class Tokenizer:
         self.stopwords = []
         for line in file.readlines():
             self.stopwords.append(line.strip())
-        self.okt = Okt()
-        
+
     def sentence_tokenizer(self, text):
-        tokenizer = self.okt
+        tokenizer = Okt()
         return [
             token for token, pos in tokenizer.pos(text, norm=True, stem=True)
             if pos in ['Noun', 'Alpha', 'Number', 'Verb'] and # 명사, 영어, 숫자, 동사
