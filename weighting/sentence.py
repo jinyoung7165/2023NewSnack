@@ -2,7 +2,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from numpy import dot
 from numpy.linalg import norm
 from collections import defaultdict
-from functools import lru_cache
+from functools import lru_cache, partial
+from pathos.multiprocessing import ProcessingPool as Pool
+import time
 
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -76,15 +78,19 @@ class Sentence(ArrUtil):
             for j in range(self.line_count):
                 if i == j: continue #같은 문장일 경우 비교x
                 sum_a = 0 #i<->j행의 단어들에 대한 최대 유사도 합
-                for word_a in self.line_word[i]: #i행의 단어 a
-                    max_sim = -float('inf') #word_a와 가장 유사한 word_b와의 유사도
-                    
-                    for word_b in self.line_word[j]: #j행의 단어 b
-                        try: 
-                            max_sim = max(max_sim, self.model.wv.similarity(word_a, word_b))
-                        except KeyError: max_sim = max(max_sim, 0)
-                    sum_a += max_sim
-                    
+                
+                pool = Pool(3)
+                sum_a += pool.map(partial(word_comparison, line_word_j=self.line_word[j], model=self.model), self.line_word[i])[0]
+
                 arr[i][j] = sum_a / size_a
-        
+                
         return self.nparr_to_dataframe(arr, self.line_count, self.line_count)
+
+def word_comparison(a, line_word_j, model): #i행의 단어 a, j행의 단어들에 대한 최대 유사도 합
+    max_sim = -float('inf') #word_a와 가장 유사한 word_b와의 유사도
+    
+    for word_b in line_word_j: #j행의 단어 b
+        try: 
+            max_sim = max(max_sim, model.wv.similarity(a, word_b))
+        except KeyError: max_sim = max(max_sim, 0)
+    return max_sim
