@@ -10,6 +10,7 @@ from preprocess.doc_text import DocToText
 from preprocess.tokenizer import Tokenizer
 from weighting.doc_tfidf import DocTfidf
 from weighting.sentence import Sentence
+from db.run_db import runDB
 
 # load .env
 load_dotenv()
@@ -36,7 +37,7 @@ def main():
         나중에는 today 2로 바꿔야함, naver_news_20.csv->naver_news.csv로 바꿔야함
     '''
     for _ in range(1): #3으로 바꿔야 함
-        sentence = Sentence(docToText, tokenizer, word2vec, "{}".format(today.date()), "naver_news_20.csv")
+        sentence = Sentence(docToText, tokenizer, word2vec, "2023-02-02", "naver_news_20.csv")
         sentence.doc_process()
         today_name = today.strftime("%Y-%m-%d")
         
@@ -49,6 +50,10 @@ def main():
     doc_tfidf.final_word_process()
     doc_tfidf.hot_topic()
 #   DocTfidf class 이틀치(940news) ->13분
+
+    run_db = runDB(doc_tfidf)
+    run_db.connect_db()
+    run_db.setting()
 
 if __name__ == '__main__':
     target = main()
