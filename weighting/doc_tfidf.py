@@ -21,6 +21,7 @@ class DocTfidf(ArrUtil): #전체 문서 기준
         sum_df.columns = my_cols
         sum_df.index = my_rows
         
+        return sum_df
     def statistical_similarity(self):
         tfidf_target_word = [] #각 문서의 모든 word로 이뤄진 문장 배열
         # 1차원 배열로 만들기(tf-idf를 위해서)
@@ -57,4 +58,5 @@ class DocTfidf(ArrUtil): #전체 문서 기준
     def hot_topic(self):
         all_words = list(reduce(lambda x,y: x+y, self.doc_word_dict.values()))
         result2=  Counter(list(word for word in all_words if word in self.word_list)).most_common(20)
-        print(result2)
+        
+        return result2
