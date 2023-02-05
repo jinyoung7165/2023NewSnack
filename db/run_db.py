@@ -46,8 +46,8 @@ class runDB():
 
         self.joinv_doc_name = self.join_vector.index.to_list() # ['2023-01-20/0', '2023-01-20/1']
 
-        # for doc in self.joinv_doc_name:
-        #     self.insert_each_doc_keyword(doc)
+        for doc in self.joinv_doc_name:
+            self.insert_each_doc_keyword(doc)
 
         print("each document mongodb insertion complete!")
 
