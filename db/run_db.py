@@ -38,10 +38,12 @@ class runDB():
 
         self.joinv_words = self.inverted_joinv.index.to_list() # df에 있는 단어들
 
-        for my_word in self.joinv_words:
-            if my_word in self.hot_topic_words:
-                self.insert_keyword_document(my_word)
+        # for my_word in self.joinv_words:
+        #     if my_word in self.hot_topic_words:
+        #         self.insert_keyword_document(my_word)
 
+        # 가중치 순(DESC)으로 single-index 생성
+        # self.db["{}".format(self.today)].create_index([('weight', -1)])
         print("hot_topic mongodb insertion complete!")
 
         self.joinv_doc_name = self.join_vector.index.to_list() # ['2023-01-20/0', '2023-01-20/1']
@@ -100,7 +102,18 @@ class runDB():
             if(self.join_vector.iat[df_idx, i] > 0.0 and self.join_vector.iat[df_idx, i] < 10): # 상수 값 고민 좀
                 each_my_dict[self.join_vector.columns[i]] = self.join_vector.iat[df_idx, i]
 
-
-        sorted_each_my_dict = dict(sorted(each_my_dict.items(), key=lambda x:x[1], reverse=True)) # 각 단어 별 가중치 높은 순으로
-
-        self.db["{}".format(doc)].insert_one(sorted_each_my_dict)
+        # sorted_each_my_dict = dict(sorted(each_my_dict.items(), key=lambda x:x[1], reverse=True)) # 각 단어 별 가중치 높은 순으로
+        temp = sorted(each_my_dict.items(), key=lambda x:x[1], reverse=True)
+        keyword_num = len(temp)
+        
+        # 키워드를 3개 이상 가지고 있으면 top3까지 저장 / 그렇지 않으면 1개만(top1)만 저장
+        if(keyword_num >= 3):
+            docu = {
+                "keyword": {"top1": temp[0][0], "top2": temp[1][0], "top3": temp[2][0]}
+            }
+        else:
+            docu = {
+                "keyword": {"top1": temp[0][0]}
+            }
+        self.db["{}".format(doc)].insert_one(docu)
+        
