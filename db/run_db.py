@@ -14,7 +14,9 @@ class runDB():
         self.db = client['test'] # test db에 접근. db 이름 고민
 
         print("mongodb connection complete!")
+        # client.admin.command('shardCollection', 'test')
 
+        # self.db.admin.command({})
         self.today = datetime.datetime.now().date()
         # self.db.create_collection("{}".format("2023-01-20")) # 오늘 날짜 collection 생성
 
@@ -38,9 +40,9 @@ class runDB():
 
         self.joinv_words = self.inverted_joinv.index.to_list() # df에 있는 단어들
 
-        # for my_word in self.joinv_words:
-        #     if my_word in self.hot_topic_words:
-        #         self.insert_keyword_document(my_word)
+        for my_word in self.joinv_words:
+            if my_word in self.hot_topic_words:
+                self.insert_keyword_document(my_word)
 
         # 가중치 순(DESC)으로 single-index 생성
         # self.db["{}".format(self.today)].create_index([('weight', -1)])
@@ -69,14 +71,14 @@ class runDB():
             if (self.inverted_joinv.iat[df_idx, i]> 0.1):
                 my_dict[date_idx[i]] = self.inverted_joinv.iat[df_idx, i]
 
-        sorted_my_dict = dict(sorted(my_dict.items(), key=lambda x:x[1], reverse=True)) # 각 기사 별 가중치 높은 순으로
-        
+        # sorted_my_dict = dict(sorted(my_dict.items(), key=lambda x:x[1], reverse=True)) # 각 기사 별 가중치 높은 순으로
+        temp = sorted(my_dict.items(), key=lambda x:x[1], reverse=True)
         docu = {
             "_id" : my_word,
             "weight" : weight,
-            "doc" : "{}".format(sorted_my_dict)
+            "doc" : [t[0] for t in temp]
         }
-
+        
         # collection 안에 document 넣는다.
         self.db["{}".format(self.today)].insert_one(docu)
 
@@ -105,7 +107,7 @@ class runDB():
         # sorted_each_my_dict = dict(sorted(each_my_dict.items(), key=lambda x:x[1], reverse=True)) # 각 단어 별 가중치 높은 순으로
         temp = sorted(each_my_dict.items(), key=lambda x:x[1], reverse=True)
         keyword_num = len(temp)
-        
+
         # 키워드를 3개 이상 가지고 있으면 top3까지 저장 / 그렇지 않으면 1개만(top1)만 저장
         if(keyword_num >= 3):
             docu = {
