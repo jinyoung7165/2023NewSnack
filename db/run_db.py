@@ -36,7 +36,7 @@ class runDB():
         self.total_weight = 0 # hot_topic 25개의 총 빈도수 합
         self.total_weight = sum([tup[1] for tup in self.hot_topic])
 
-        self.hot_topic_words = [tup[0] for tup in self.hot_topic] # hot_topic 25개 단어 list
+        self.hot_topic_words = [tup[0] for tup in self.hot_topic] # hot_topic 20개 단어 list
 
         self.joinv_words = self.inverted_joinv.index.to_list() # df에 있는 단어들
 
@@ -86,13 +86,18 @@ class runDB():
     def insert_each_doc_keyword(self, doc):
 
         df_idx = self.joinv_doc_name.index(doc)
-
+        
         # 핫 토픽 단어를 가진 document만 "2023-02-02/0"형태로 collection으로 저장 
+        # for i in range(len(self.hot_topic_words)):
+        #     hot_idx = self.joinv_words.index(self.hot_topic_words[i])
+        #     if self.join_vector.iat[df_idx, hot_idx] > 0:
+        #         self.insert_values(doc)
+        #         break
         for i in range(len(self.hot_topic_words)):
-            if self.join_vector.iat[df_idx, i] > 0.0:
+            if self.join_vector.loc[doc, self.hot_topic_words[i]] > 0:
                 self.insert_values(doc)
+                # print(doc)
                 break
-
 
     def insert_values(self, doc):
         self.db["{}".format(doc)].drop() # collection 자체 삭제는 drop
@@ -101,7 +106,7 @@ class runDB():
         each_my_dict = dict()
         df_idx = self.joinv_doc_name.index(doc)
         for i in range(len_word_in_df):
-            if(self.join_vector.iat[df_idx, i] > 0.0 and self.join_vector.iat[df_idx, i] < 10): # 상수 값 고민 좀
+            if(self.join_vector.iat[df_idx, i] >= 0.0 and self.join_vector.iat[df_idx, i] < 10): # 상수 값 고민 좀
                 each_my_dict[self.join_vector.columns[i]] = self.join_vector.iat[df_idx, i]
 
         # sorted_each_my_dict = dict(sorted(each_my_dict.items(), key=lambda x:x[1], reverse=True)) # 각 단어 별 가중치 높은 순으로
@@ -118,4 +123,3 @@ class runDB():
                 "keyword": {"top1": temp[0][0]}
             }
         self.db["{}".format(doc)].insert_one(docu)
-        
