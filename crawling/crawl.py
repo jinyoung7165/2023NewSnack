@@ -1,9 +1,8 @@
-from functools import partial
 import datetime
 import pandas as pd
 import time
 from threading import Thread
-from multiprocessing import Manager, Pool
+from multiprocessing import Manager, Process, Semaphore
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -48,12 +47,11 @@ def current_page_items(pageIdx, return_list): #전체페이지에서 각 기사�
         for th in ths:
             th.join()
 
-                        
     except Exception as e:
         print(e)
         return False
 
-def get_news_content_thread(idx, return_list, return_len): #각 기사에서 뉴스 전문 가져옴(idx 3개씩 건너뛰면서 순회)
+def get_news_content_thread(idx, return_list, return_len, sema): #각 기사에서 뉴스 전문 가져옴(idx 3개씩 건너뛰면서 순회)
     ths = []
     for idx_thread in range(idx, return_len, return_len//2 - 1):
         th = Thread(target=get_news_content, args=(idx_thread, return_list))
@@ -61,6 +59,10 @@ def get_news_content_thread(idx, return_list, return_len): #각 기사에서 뉴
         ths.append(th)
     for th in ths:
         th.join()
+    # `release` will add 1 to `sema`, allowing other 
+    # processes blocked on it to continue
+    sema.release()
+                    
             
 def get_news_content(idx, return_list):
     try:
@@ -110,10 +112,26 @@ def crawl():
     return_list = Manager().list()
 
     ''' . . . 오늘 뉴스 crawl + 파일 저장 . . . '''
-    pool = Pool(3)
+    #pool = Pool(3)
+    sema = Semaphore(30)
+    # 멀티프로세싱 
+    processes = []
+    #pool.map(partial(current_page_items, return_list=return_list), range(1, 50)) #50p까지만 보자
+    #pool.map(partial(get_news_content_thread, return_list=return_list, return_len=len(return_list)), range(len(return_list)//2 - 1))
     
-    pool.map(partial(current_page_items, return_list=return_list), range(1, 50)) #50p까지만 보자
-    pool.map(partial(get_news_content_thread, return_list=return_list, return_len=len(return_list)), range(len(return_list)//2 - 1))
+    for i in range(1, 50):
+        current_page_items(i, return_list)
+    
+    for i in range(len(return_list)//2 - 1):
+        sema.acquire()
+        process = Process(target=get_news_content_thread, args=(i, return_list, len(return_list), sema))
+        processes.append(process)
+        process.start()
+
+    # 멀티프로세스 종료
+    for process in processes:
+        process.join()
+        
     convert_csv(list(return_list))
     
 if __name__ == '__main__':
