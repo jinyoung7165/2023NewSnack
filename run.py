@@ -24,7 +24,7 @@ def main():
     docToText = DocToText(s3)
     tokenizer = Tokenizer()
     
-    word2vec = Word2Vec.load('model')
+    word2vec = Word2Vec.load('model_bulk')
     # print(word2vec.wv.most_similar(positive=["금융"]))
     # print(word2vec.wv.most_similar(positive=["테슬라"]))
     
@@ -37,7 +37,7 @@ def main():
         나중에는 today 2로 바꿔야함, naver_news_20.csv->naver_news.csv로 바꿔야함
     '''
     for _ in range(1): #3으로 바꿔야 함
-        sentence = Sentence(docToText, tokenizer, word2vec, "2023-02-10", "naver_news_test.csv")
+        sentence = Sentence(docToText, tokenizer, word2vec, "2023-02-16", "naver_news.csv")
         sentence.doc_process()
         today_name = end_date.strftime("%Y-%m-%d")
         
@@ -47,15 +47,15 @@ def main():
         today += delta # 하루씩 증가(하루 뉴스 470개에 6-7분 소요)
 
     doc_tfidf = DocTfidf(word2vec, doc_word_dict)
-    doc_tfidf.final_word_process()
-    doc_tfidf.hot_topic()
+    join_vector = doc_tfidf.final_word_process()
+    hot_topic = doc_tfidf.hot_topic()
 #   DocTfidf class 이틀치(940news) ->13분
 
-    run_db = runDB(doc_tfidf)
+    run_db = runDB(doc_tfidf, join_vector, hot_topic)
     run_db.connect_db()
     run_db.setting()
 
-    # summary = Summary(docToText, doc_tfidf)
+    # summary = Summary(list(docToText.main), hot_topic)
     # summary.setting()
 
 if __name__ == '__main__':

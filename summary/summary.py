@@ -2,21 +2,19 @@ import requests
 import json
 import os
 from dotenv import load_dotenv
-from preprocess.doc_text import DocToText
-from weighting.doc_tfidf import DocTfidf
 
 load_dotenv()
 class Summary:
-    def __init__(self, docToText : DocToText, docTfidf : DocTfidf):
-        self.docToText = docToText
-        self.docTfidf = docTfidf
+    def __init__(self, document, hot_topic):
+        self.document = document
+        self.hot_topic = hot_topic
 
     def setting(self):
-        self.document = list(self.docToText.main)
-        hot_topic_words = [tup[0] for tup in self.docTfidf.hot_topic()] # hot_topic 25개 단어 list
+        # self.document = list(self.docToText.main)
+        hot_topic_words = [tup[0] for tup in self.hot_topic] # hot_topic 25개 단어 list
         
         doc_len = len(self.document) # 기사 개수
-
+        k = 0
         dup_arr = [] # 핫토픽이 중복되는 문서는 요약 한 번만 하면 되므로 중복 방지
         for i in range(len(hot_topic_words)): 
             for j in range(doc_len):
@@ -31,7 +29,7 @@ class Summary:
                         my_summary += self.over_2000words(self.document[j], my_doc_len)
                     else:
                         my_summary += self.execute_summary(self.document[j])
-                    print(my_summary, j)
+                    print(my_summary)
                     print()
 
     def over_2000words(self, content, doc_len):
@@ -51,9 +49,7 @@ class Summary:
         temp = ""
         if(len(remainder) > 2000):
             temp += self.over_2000words(remainder, len(remainder))
-            print("22")
             return temp
-        print("2")
         return (self.execute_summary(first) + self.execute_summary(remainder))
 
     def execute_summary(self, target_content):
