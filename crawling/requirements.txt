@@ -1,6 +1,6 @@
 pandas == 1.5.0
-selenium == 4.7.2
-chromedriver == 2.24.1
 datetime == 4.9
 boto3 == 1.26.38
 python-dotenv
+requests
+bs4
