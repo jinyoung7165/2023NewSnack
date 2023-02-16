@@ -27,8 +27,8 @@ class runDB():
         
 
     def setting(self):
-        self.db["{}".format(self.today)].delete_many({}) # document 지우고 시작
-
+        # self.db["{}".format(self.today)].delete_many({}) # document 지우고 시작
+        self.db["hot"].delete_many({})
         self.join_vector = self.doc_tfidf.final_word_process() # 결합 벡터 가져오기
         self.inverted_joinv = self.join_vector.T # column, index 바꾼 df
 
@@ -80,8 +80,8 @@ class runDB():
         }
         
         # collection 안에 document 넣는다.
-        self.db["{}".format(self.today)].insert_one(docu)
-
+        # self.db["{}".format(self.today)].insert_one(docu)
+        self.db["hot"].insert_one(docu)
 
     def insert_each_doc_keyword(self, doc):
 
