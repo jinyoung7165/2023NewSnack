@@ -51,7 +51,7 @@ def main():
     hot_topic = doc_tfidf.hot_topic()
 #   DocTfidf class 이틀치(940news) ->13분
 
-    run_db = runDB(doc_tfidf, join_vector, hot_topic)
+    run_db = runDB(join_vector, hot_topic)
     run_db.connect_db()
     run_db.setting()
 
