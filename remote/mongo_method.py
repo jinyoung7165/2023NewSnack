@@ -1,18 +1,20 @@
 from pymongo import MongoClient
 import datetime
 
-class RunDB():
-    def __init__(self, join_vector, hot_topic):
-        self.join_vector = join_vector
-        self.hot_topic = hot_topic
-        self.today = datetime.datetime.now().date()
-
-    def connect_db(self):
+class MongoDB:
+    def __init__(self):
         client = MongoClient(host='localhost', port=27017)
         # print(client.list_database_names())
         self.db = client['test'] # test db에 접근. db 이름 고민
         print("mongodb connection complete!")
 
+
+class RunDB(MongoDB):
+    def __init__(self, join_vector, hot_topic):
+        self.join_vector = join_vector
+        self.hot_topic = hot_topic
+        self.today = datetime.datetime.now().date()
+        
     def setting(self):
         self.total_weight = sum([tup[1] for tup in self.hot_topic]) # hot_topic 20개의 총 빈도수 합
         self.hot_topic_words = [tup[0] for tup in self.hot_topic] # hot_topic 20개 단어 list
