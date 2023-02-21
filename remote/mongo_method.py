@@ -1,9 +1,10 @@
 from pymongo import MongoClient
-import datetime
+import datetime, os
 
 class MongoDB:
     def __init__(self):
-        client = MongoClient("mongodb+srv://yongyong:yongyong23@yongyong.834oknp.mongodb.net")
+        client = MongoClient("mongodb+srv://{}:{}@yongyong.834oknp.mongodb.net"
+                            .format(os.environ.get('mongo_username'), os.environ.get('mongo_password')))
         # print(client.list_database_names())
         self.db_doc = client['doc'] # 각 기사 키워드
         self.db_hot = client['hot'] # 핫 토픽 20개

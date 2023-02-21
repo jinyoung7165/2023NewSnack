@@ -19,11 +19,10 @@ load_dotenv()
 date = datetime.datetime.now()
 
 label = ["링크", "언론사", "제목", "날짜", "본문"]
-filename = 'naver_news_test4.csv'
+filename = 'naver_news.csv'
 today = date.strftime("%Y%m%d")
 
 today_for_collection = date.now().date()
-mongodb = MongoDB().db_doc
 
 now_date = date.date()
 def current_page_items(pageIdx, return_list): #전체페이지에서 각 기사의 링크, 메타데이터 저장해둠
@@ -108,7 +107,7 @@ def convert_csv(return_list):
     result.to_csv(filename, encoding="utf-8-sig")
     
 
-def save_in_mongo(return_list):
+def save_in_mongo(mongodb, return_list):
     for i in range(len(return_list)):
         collection_name = today_for_collection.strftime("%Y-%m-%d") + "/" + str(i)
         docu = {
@@ -121,7 +120,7 @@ def save_in_mongo(return_list):
         }
         # db["{}".format(collection_name)].drop()
         # 2023-02-10/0 이런 식으로 저장
-        mongodb["{}".format(collection_name)].insert_one(docu)
+        mongodb[collection_name].insert_one(docu)
 
 def chunks(l, n):
     for i in range(0, len(l), n):
@@ -129,6 +128,7 @@ def chunks(l, n):
             
 def crawl():
     s3 = S3() #s3 connection 1번
+    mongodb = MongoDB().db_doc #mongo connection 1번
     print(today, "오늘의 crawl 시작")
     return_list = Manager().list()
 
@@ -138,7 +138,7 @@ def crawl():
     # 멀티프로세싱 
     processes = []
  
-    for i in range(1, 6):
+    for i in range(1, 50):
         current_page_items(i, return_list)
     
     for i in range(len(return_list)//2 - 1):
@@ -155,9 +155,9 @@ def crawl():
     
         
     convert_csv(list(return_list))
-    save_in_mongo(list(return_list))
+    save_in_mongo(mongodb, list(return_list))
 
-    s3.s3_upload_file(now_date, "naver_news_test4.csv")
+    s3.s3_upload_file(now_date, "naver_news.csv")
     
     return today
     
