@@ -10,7 +10,7 @@ class Summary:
         self.hot_topic = hot_topic
 
     def setting(self):
-        hot_topic_words = [tup[0] for tup in self.hot_topic] # hot_topic 25개 단어 list
+        hot_topic_words = [tup[0] for tup in self.hot_topic] # hot_topic 20개 단어 list
         
         doc_len = len(self.document) # 기사 개수
         dup_set = set() # 핫토픽이 중복되는 문서는 요약 한 번만 하면 되므로 중복 방지

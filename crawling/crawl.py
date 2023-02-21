@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from remote.s3_method import S3
+from remote.mongo_method import MongoDB
 
 # load .env
 load_dotenv()
@@ -18,8 +19,11 @@ load_dotenv()
 date = datetime.datetime.now()
 
 label = ["링크", "언론사", "제목", "날짜", "본문"]
-filename = 'naver_news.csv'
+filename = 'naver_news_test4.csv'
 today = date.strftime("%Y%m%d")
+
+today_for_collection = date.now().date()
+mongodb = MongoDB().db_doc
 
 now_date = date.date()
 def current_page_items(pageIdx, return_list): #전체페이지에서 각 기사의 링크, 메타데이터 저장해둠
@@ -103,6 +107,22 @@ def convert_csv(return_list):
     result = pd.DataFrame(return_list, columns = label)
     result.to_csv(filename, encoding="utf-8-sig")
     
+
+def save_in_mongo(return_list):
+    for i in range(len(return_list)):
+        collection_name = today_for_collection.strftime("%Y-%m-%d") + "/" + str(i)
+        docu = {
+            'doc': collection_name, # 2023-02-10/0
+            'link': return_list[i][0], # 링크
+            'press': return_list[i][1], # 언론사
+            'title': return_list[i][2], # 제목
+            'date': return_list[i][3], # 날짜 ('2023-02-21 12:53:01' 형식)
+            'main': return_list[i][4] # 본문
+        }
+        # db["{}".format(collection_name)].drop()
+        # 2023-02-10/0 이런 식으로 저장
+        mongodb["{}".format(collection_name)].insert_one(docu)
+
 def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
@@ -118,7 +138,7 @@ def crawl():
     # 멀티프로세싱 
     processes = []
  
-    for i in range(1, 50):
+    for i in range(1, 6):
         current_page_items(i, return_list)
     
     for i in range(len(return_list)//2 - 1):
@@ -135,8 +155,9 @@ def crawl():
     
         
     convert_csv(list(return_list))
-    
-    s3.s3_upload_file(now_date, "naver_news.csv")
+    save_in_mongo(list(return_list))
+
+    s3.s3_upload_file(now_date, "naver_news_test4.csv")
     
     return today
     

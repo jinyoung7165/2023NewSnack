@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import collections
 from gensim.models import Word2Vec
 
-import sys, os, time
+import sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from remote.s3_method import S3
 from preprocess.doc_text import DocToText
@@ -37,7 +37,7 @@ def main():
         나중에는 today 2로 바꿔야함, naver_news_20.csv->naver_news.csv로 바꿔야함
     '''
     for _ in range(1): #3으로 바꿔야 함
-        sentence = Sentence(docToText, tokenizer, word2vec, "2023-02-16", "naver_news.csv")
+        sentence = Sentence(docToText, tokenizer, word2vec, "2023-02-21", "naver_news_test4.csv")
         sentence.doc_process()
         today_name = end_date.strftime("%Y-%m-%d")
         
@@ -52,7 +52,6 @@ def main():
 #   DocTfidf class 이틀치(940news) ->13분
 
     run_db = RunDB(join_vector, hot_topic)
-    run_db.connect_db()
     run_db.setting()
 
     # summary = Summary(list(docToText.main), hot_topic)

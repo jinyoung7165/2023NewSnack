@@ -3,18 +3,20 @@ import datetime
 
 class MongoDB:
     def __init__(self):
-        client = MongoClient(host='localhost', port=27017)
+        client = MongoClient("mongodb+srv://yongyong:yongyong23@yongyong.834oknp.mongodb.net")
         # print(client.list_database_names())
-        self.db = client['test'] # test db에 접근. db 이름 고민
+        self.db_doc = client['doc'] # 각 기사 키워드
+        self.db_hot = client['hot'] # 핫 토픽 20개
         print("mongodb connection complete!")
 
 
 class RunDB(MongoDB):
     def __init__(self, join_vector, hot_topic):
+        super().__init__()
         self.join_vector = join_vector
         self.hot_topic = hot_topic
         self.today = datetime.datetime.now().date()
-        
+
     def setting(self):
         self.total_weight = sum([tup[1] for tup in self.hot_topic]) # hot_topic 20개의 총 빈도수 합
         self.hot_topic_words = [tup[0] for tup in self.hot_topic] # hot_topic 20개 단어 list
@@ -52,7 +54,8 @@ class RunDB(MongoDB):
         }
         
         # collection 안에 document 넣는다.
-        self.db[str(self.today)].insert_one(docu)
+        db = self.db_hot
+        db[str(self.today)].insert_one(docu)
 
     def insert_each_doc_keyword(self, doc):
         # 핫 토픽 단어를 가진 document만 "2023-02-02/0"형태로 collection으로 저장 
@@ -82,5 +85,6 @@ class RunDB(MongoDB):
             docu = {
                 "keyword": {"top1": temp[0][0]}
             }
-            
-        self.db[str(doc)].insert_one(docu)
+        filter = {'doc': doc} # 2023-02-10/0 == 2023-02-10/0
+        db = self.db_doc
+        db[doc].update_one(filter, { "$set" : docu })
