@@ -10,7 +10,7 @@ from preprocess.doc_text import DocToText
 from preprocess.tokenizer import Tokenizer
 from weighting.doc_tfidf import DocTfidf
 from weighting.sentence import Sentence
-from db.run_db import runDB
+from remote.mongo_method import RunDB
 from summary.summary import Summary
 # load .env
 load_dotenv()
@@ -51,7 +51,7 @@ def main():
     hot_topic = doc_tfidf.hot_topic()
 #   DocTfidf class 이틀치(940news) ->13분
 
-    run_db = runDB(join_vector, hot_topic)
+    run_db = RunDB(join_vector, hot_topic)
     run_db.connect_db()
     run_db.setting()
 

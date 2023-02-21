@@ -10,18 +10,16 @@ class Summary:
         self.hot_topic = hot_topic
 
     def setting(self):
-        # self.document = list(self.docToText.main)
         hot_topic_words = [tup[0] for tup in self.hot_topic] # hot_topic 25개 단어 list
         
         doc_len = len(self.document) # 기사 개수
-        k = 0
-        dup_arr = [] # 핫토픽이 중복되는 문서는 요약 한 번만 하면 되므로 중복 방지
+        dup_set = set() # 핫토픽이 중복되는 문서는 요약 한 번만 하면 되므로 중복 방지
         for i in range(len(hot_topic_words)): 
             for j in range(doc_len):
                 if hot_topic_words[i] in self.document[j]:
-                    if (j in dup_arr): continue
+                    if (j in dup_set): continue
                     # if (j != 26): continue
-                    dup_arr.append(j)
+                    dup_set.add(j)
                     my_summary = ""
                     my_doc_len = len(self.document[j])
                     # 4000자 까지는 가능
@@ -88,6 +86,3 @@ class Summary:
             print("Error : " + response.text)
         
         return my_summary
-            
-# summary = Summary()
-# summary.test_get_document()
