@@ -3,7 +3,7 @@ from numpy import dot
 from numpy.linalg import norm
 from collections import defaultdict
 from functools import lru_cache
-from multiprocessing import Process, Manager, Semaphore
+from multiprocessing import Process, Manager
 
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -25,27 +25,28 @@ def docs_process(docs, docs_word_arr, model, date): # -> 모든 문서에 대해
     return_list = Manager().list()
     procs = []
     plimit = 20
-    sema = Semaphore(plimit)
     # 한 문서에서 문장 리스트 뽑음
     for idx, doc in enumerate(docs): #idx:문서 번호 - 전처리 후 문장 0개면 pass할 거라 문서번호까지 df에 나타내자
-        # once 20 processes are running, the following `acquire` call
-        # will block the main process since `sema` has been reduced
-        # to 0. This loop will continue only after one or more 
-        # previously created processes complete.
-        sema.acquire()
-        proc = Process(target=doc_process, args=(idx, doc, return_list, model, date, sema))
+        proc = Process(target=doc_process, args=(idx, doc, return_list, model, date))
         procs.append(proc)
-        proc.start()
-    # inside main process, wait for all processes to finish    
-    for proc in procs:
-        proc.join()
+        
+    for process_chuck in chunks(procs, plimit):
+        # 멀티프로세스 시작
+        for process in process_chuck:
+            process.start()
+        # 멀티프로세스 종료
+        for process in process_chuck:
+            process.join()
     
     for doc_words in return_list:
         key, *val = doc_words
         docs_word_arr[key] = val
     
-
-def doc_process(idx, doc, return_list, model, date, sema): # 
+def chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+        
+def doc_process(idx, doc, return_list, model, date):
     word_lines = [] # ["첫번째 문서", "두번째 문장"]
     line_word = [] #문장별 단어 배열 #[["첫번째", "문서"], ["두번째", "문장]]
     
@@ -67,7 +68,6 @@ def doc_process(idx, doc, return_list, model, date, sema): #
         if i not in delete_idx_arr:
             doc_words.extend(line_word[i])
     return_list.append(doc_words)
-    sema.release()
                     
 def preprocess(row, word_lines, line_word): #문서 내 각 열(row)의 문장(line) 형태소 분석 + 불용어 제거
     tokenizer = Tokenizer()
