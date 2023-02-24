@@ -1,4 +1,4 @@
-import datetime
+import datetime, time
 from dotenv import load_dotenv
 import collections
 from gensim.models import Word2Vec
@@ -10,12 +10,11 @@ from preprocess.doc_text import DocToText
 from preprocess.tokenizer import Tokenizer
 from weighting.doc_tfidf import DocTfidf
 from weighting.sentence import Sentence
+from weighting.sentence_def import sentence as sentence_def
 from remote.mongo_method import RunDB
 from summary.summary import Summary
 # load .env
 load_dotenv()
-
-now_date = datetime.datetime.now().date()
 
 ''' . . . 3일치 언론사 뉴스로 확대 . . . '''
 def main():
@@ -25,36 +24,35 @@ def main():
     tokenizer = Tokenizer()
     
     word2vec = Word2Vec.load('model_bulk')
-    # print(word2vec.wv.most_similar(positive=["금융"]))
-    # print(word2vec.wv.most_similar(positive=["테슬라"]))
     
     doc_word_dict = collections.defaultdict(list)
 
     delta = datetime.timedelta(days=1) # 1일 후
     end_date = datetime.datetime.now()
-    today = end_date - datetime.timedelta(days=1) # 1일 전.테스트용
-    '''
-        나중에는 today 2로 바꿔야함, naver_news_20.csv->naver_news.csv로 바꿔야함
-    '''
-    for _ in range(1): #3으로 바꿔야 함
-        sentence = Sentence(docToText, tokenizer, word2vec, "2023-02-21", "naver_news_test4.csv")
-        sentence.doc_process()
-        today_name = end_date.strftime("%Y-%m-%d")
-        
-        for doc_idx in sentence.docs_word_arr.keys():
-            key = today_name + "/" + str(doc_idx)# "날짜/문서번호"
-            doc_word_dict[key] = sentence.docs_word_arr[doc_idx]
-        today += delta # 하루씩 증가(하루 뉴스 470개에 6-7분 소요)
+    today = end_date - datetime.timedelta(days=2) # 2일 전
 
+    for _ in range(1): #3으로 바꿔야 함!!!!!!!!!!!!
+        today_name = today.strftime("%Y-%m-%d")
+        now_t = time.time()
+        # sentence = Sentence(docToText, tokenizer, word2vec, today_name, "naver_news.csv")
+        # sentence.doc_process()
+        docs_word_arr = sentence_def(docToText, word2vec, today_name, "naver_news.csv")
+        doc_word_dict.update(docs_word_arr) # 하루 뉴스 470개에 221.7초
+        print(time.time()- now_t)
+        today += delta # 하루씩 증가
+
+    now_t = time.time()
     doc_tfidf = DocTfidf(word2vec, doc_word_dict)
     join_vector = doc_tfidf.final_word_process()
+    print("joinvector", time.time()-now_t)
     hot_topic = doc_tfidf.hot_topic()
-#   DocTfidf class 이틀치(940news) ->13분
+    print("hottopic", time.time()-now_t)
+    # DocTfidf class 이틀치(940news) ->13분
 
-    run_db = RunDB(join_vector, hot_topic)
-    run_db.setting()
+#     run_db = RunDB(join_vector, hot_topic)
+#     run_db.setting()
 
-    # summary = Summary(list(docToText.main), hot_topic)
+    # summary = Summary(list(docToText.main), hot_topic) # 3일치 확대 필요
     # summary.setting()
 
 if __name__ == '__main__':
