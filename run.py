@@ -30,21 +30,22 @@ def main():
     
     doc_word_dict = collections.defaultdict(list)
 
-    delta = datetime.timedelta(days=1) # 1일 후
+    delta = datetime.timedelta(days=2) # 1일 후
     end_date = datetime.datetime.now()
-    today = end_date - datetime.timedelta(days=1) # 1일 전.테스트용
+    today = end_date - datetime.timedelta(days=2) # 1일 전.테스트용
     '''
         나중에는 today 2로 바꿔야함, naver_news_20.csv->naver_news.csv로 바꿔야함
     '''
     for _ in range(1): #3으로 바꿔야 함
-        sentence = Sentence(docToText, tokenizer, word2vec, "2023-02-21", "naver_news_test4.csv")
-        sentence.doc_process()
         today_name = end_date.strftime("%Y-%m-%d")
+
+        sentence = Sentence(docToText, tokenizer, word2vec, "{}".format(today_name), "naver_news_test4.csv")
+        sentence.doc_process()
         
         for doc_idx in sentence.docs_word_arr.keys():
-            key = today_name + "/" + str(doc_idx)# "날짜/문서번호"
+            key = today_name + "/" + str(doc_idx)# "날짜/문서번호" today_name
             doc_word_dict[key] = sentence.docs_word_arr[doc_idx]
-        today += delta # 하루씩 증가(하루 뉴스 470개에 6-7분 소요)
+        end_date -= delta # 하루씩 증가(하루 뉴스 470개에 6-7분 소요)
 
     doc_tfidf = DocTfidf(word2vec, doc_word_dict)
     join_vector = doc_tfidf.final_word_process()
@@ -54,8 +55,11 @@ def main():
     run_db = RunDB(join_vector, hot_topic)
     run_db.setting()
 
-    # summary = Summary(list(docToText.main), hot_topic)
-    # summary.setting()
+    doc_main_dict = run_db.doc_dict # summary에 넘겨줄 요약 대상 {"2023-02-01/0" : "본문 내용"}
+    db_doc = run_db.db_doc # summary에 주입할 db_doc
+
+    summary = Summary(hot_topic, doc_main_dict, db_doc)
+    summary.setting()
 
 if __name__ == '__main__':
     target = main()
