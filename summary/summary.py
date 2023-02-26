@@ -1,88 +1,73 @@
 import requests
 import json
 import os
+import json
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
 class Summary:
-    def __init__(self, document, hot_topic):
-        self.document = document
+    def __init__(self, hot_topic, doc_main_arr, db_doc):
         self.hot_topic = hot_topic
+        self.doc_main_arr = doc_main_arr # 요약할 기사들의 본문(사전)
+        self.db_doc = db_doc
 
-    def setting(self):
-        hot_topic_words = [tup[0] for tup in self.hot_topic] # hot_topic 20개 단어 list
-        
-        doc_len = len(self.document) # 기사 개수
-        dup_set = set() # 핫토픽이 중복되는 문서는 요약 한 번만 하면 되므로 중복 방지
-        for i in range(len(hot_topic_words)): 
-            for j in range(doc_len):
-                if hot_topic_words[i] in self.document[j]:
-                    if (j in dup_set): continue
-                    # if (j != 26): continue
-                    dup_set.add(j)
-                    my_summary = ""
-                    my_doc_len = len(self.document[j])
-                    # 4000자 까지는 가능
-                    if (my_doc_len > 2000):
-                        my_summary += self.over_2000words(self.document[j], my_doc_len)
-                    else:
-                        my_summary += self.execute_summary(self.document[j])
-                    print(my_summary)
-                    print()
+    def setting(self): 
+        for key, value in self.doc_main_arr.items():
+            filter = {'doc': key}
+            if (self.db_doc[key].find_one({'summary': {'$exists': False}})): # summary를 하지 않은 것만 대상으로 요약
+                docu = {
+                    'summary': self.summarize_text(value.replace('\n', '')) # 개행 없애기(개행 너무 많으면 요약 에러 발생)
+                }
+                self.db_doc[key].update_one(filter, { "$set" : docu })
+                print("summary")
+            else:
+                print("already summarized")
+        print("summary update complete!")
 
-    def over_2000words(self, content, doc_len):
-        text = content.split('.') 
-        half_len = doc_len / 2
-        idx = 0
-        first = ""
-        remainder = ""
-        temp = ""
-        for p in range(doc_len):
-            temp += text[p]
-            if(len(temp) >= half_len):
-                idx = p
-                break
-        first += '.'.join(li for li in text[0:idx])
-        remainder += '.'.join(li for li in text[idx:])
-        temp = ""
-        if(len(remainder) > 2000):
-            temp += self.over_2000words(remainder, len(remainder))
-            return temp
-        return (self.execute_summary(first) + self.execute_summary(remainder))
-
-    def execute_summary(self, target_content):
+    # 요약 함수
+    def summarize_text(self, text):
         client_id = os.environ.get('summary_id')
         client_secret = os.environ.get('summary_secret')
+
+        # 2000개 단어 기준으로 chunk 쪼개기
+        text_chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+
         headers = {
+            "Content-Type": "application/json; utf-8",
             "X-NCP-APIGW-API-KEY-ID": client_id,
             "X-NCP-APIGW-API-KEY": client_secret,
-            "Content-Type": "application/json"
         }
 
-        language = "ko"
-        url = 'https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize'
-        model = "news" # Model used for summaries (general, news)
-        tone = "0" # Converts the tone of the summarized result. (0, 1, 2, 3) 원문 어투 유지.
-        summaryCount = "3" # 3줄 요약
-
-        content = target_content
-        data = {
-            "document": {
-            "content" : content
-            },
-            "option": {
-            "language": language,
-            "model": model,
-            "tone": tone,
-            "summaryCount" : summaryCount
-            }
-        }
-        response = requests.post(url=url, data=json.dumps(data), headers=headers)
-        rescode = response.status_code
-        my_summary = ""
-        if(rescode == 200):
-            my_summary += json.loads(response.text)["summary"]
-        else:
-            print("Error : " + response.text)
+        summaries = []
         
-        return my_summary
+        # chunk 단위로 요약 api와 연동
+        for chunk in text_chunks:
+
+            data = {
+                "document": {
+                    "content": chunk,
+                },
+                "option": {
+                    "language": "ko", # 한국어
+                    "model": "news", # 뉴스 타겟
+                    "summaryCount" : "3", # 3문장
+                    "tone": "0" # 원문 톤
+                },
+            }
+
+            res = requests.post("https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize",
+                                headers=headers, data=json.dumps(data))
+
+            rescode = res.status_code
+            summary = ""
+            if(rescode == 200):
+                summary = json.loads(res.text)["summary"]
+            else:
+                print("Error : " + res.text)
+            # summary = res.json()["summary"]
+            summaries.append(summary)
+
+        final_summary = "\n".join(summaries)
+
+        return final_summary
