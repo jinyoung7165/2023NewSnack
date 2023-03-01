@@ -6,16 +6,32 @@
 </head>
 <body>
 <h1><span th:text="${param.word}"></span> 뉴스 검색 결과 <span th:text="${#lists.size(docs)}"></span>건 입니다.</h1>
-<div th:each="doc : ${docs}">
+<div th:each="doc, i : ${docs}">
   <div class="article">
-<!--    <div class="image-container">-->
-<!--      <img th:src="${doc.image}" alt="Article Image">-->
-<!--    </div>-->
+    <!--    <div class="image-container">-->
+    <!--      <img th:src="${doc.image}" alt="Article Image">-->
+    <!--    </div>-->
     <div class="article-content">
       <h2 th:text="${doc.title}"></h2>
-      <!-- 100자만 보여주고 나머지는 ...으로 표시(summary) -->
-      <td th:text="${#strings.length(doc.summary) &lt;= 100 ? doc.summary : doc.summary.substring(0, 100) + '...'}"></td>
-      <button class="popup-btn">Summary</button>
+      <div class="summary" th:text="${#strings.length(doc.summary) &lt;= 100 ? doc.summary : doc.summary.substring(0, 100) + '...'}"></div>
+      <button class="popup-btn" th:data-doc-index="${i.index}">Summary</button>
+      <div id="dim-layer"></div>
+      <div id="popup">
+        <h2 th:text="${doc.title}"></h2>
+        <span class="date" th:text="${doc.date}"></span>
+        <a class="link" th:href="${doc.link}" target="_blank">원문보기</a>
+        <div class="keyword-content">
+          <span class="keyword" th:text="${doc.keyword['top1'] ?: ''}"></span>
+          <span class="keyword" th:text="${doc.keyword['top2'] ?: ''}"></span>
+          <span class="keyword" th:text="${doc.keyword['top3'] ?: ''}"></span>
+        </div>
+<!--        <img src="image.jpg" alt="Image">-->
+        <div>
+          <span class="summary" th:text="${doc.summary}"></span>
+        </div>
+        <button id="close-button">X</button>
+      </div>
+
       <div class="article-details">
         <span class="press" th:text="${doc.press}"></span>
         <span class="date" th:text="${doc.date}"></span>
@@ -24,81 +40,111 @@
           <span class="keyword" th:text="${doc.keyword['top2'] ?: ''}"></span>
           <span class="keyword" th:text="${doc.keyword['top3'] ?: ''}"></span>
         </div>
-
       </div>
     </div>
   </div>
 </div>
-
 <!-- Define the styles for the article container and its children -->
 <style>
-    .article {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 10px;
-      border: 1px solid #ccc;
-    }
+  .article {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
 
-<!--    .image-container {-->
-<!--      margin-right: 10px;-->
-<!--      max-width: 150px;-->
-<!--    }-->
+  .article-content {
+    flex-grow: 1;
+  }
 
-    .article-content {
-      flex-grow: 1;
-    }
+  .article-content h2 {
+    margin: 0;
+    font-size: 20px;
+  }
 
-    .article-content h2 {
-      margin: 0;
-      font-size: 20px;
-    }
+  .summary {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    max-height: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-    .summary {
-      margin-top: 10px;
-      margin-bottom: 20px;
-      font-size: 16px;
-      max-height: 70px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .popup-btn {
+    display: block;
+    margin-bottom: 10px;
+  }
 
-    .popup-btn {
-      display: block;
-      margin-bottom: 10px;
-    }
+  .article-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
 
-    .article-details {
-      display: flex;
-      justify-content: space-between;
-      font-size: 14px;
-    }
+  .article-details span {
+    margin-right: 10px;
+  }
 
-    .article-details span {
-      margin-right: 10px;
-    }
+  .article-details span:last-child {
+    margin-right: 0;
+  }
 
-    .article-details span:last-child {
-      margin-right: 0;
-    }
+  .keyword-content {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
 
-    .keyword-content {
-      display: flex;
-      justify-content: space-between;
-      font-size: 14px;
-    }
+  #dim-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    display: none;
+  }
 
-  </style>
+  #popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    z-index: 2;
+    display: none;
+  }
 
-<!-- Define the JavaScript code for the popup window -->
+  #popup img {
+    max-width: 100%;
+  }
+
+  #close-button {
+    margin-top: 20px;
+  }
+</style>
+
 <script>
-    var popupButtons = document.querySelectorAll('.popup-btn');
-    for (var i = 0; i < popupButtons.length; i++) {
-      popupButtons[i].addEventListener('click', function() {
-        var summary = this.previousSibling.textContent;
-        alert(summary);
+    const summaryButtons = document.getElementsByClassName('popup-btn');
+    const dimLayer = document.getElementById('dim-layer');
+    const popup = document.getElementById('popup');
+    const closeButton = document.getElementById('close-button');
+
+    for (let i = 0; i < summaryButtons.length; i++) {
+      summaryButtons[i].addEventListener('click', function() {
+        dimLayer.style.display = 'block';
+        popup.style.display = 'block';
       });
     }
-  </script>
+
+    closeButton.addEventListener('click', function() {
+      dimLayer.style.display = 'none';
+      popup.style.display = 'none';
+    });
+</script>
 </body>
 </html>
