@@ -1,14 +1,12 @@
 from pymongo import MongoClient
-import datetime
-import os
-from dotenv import load_dotenv
+import datetime, os
 
 load_dotenv()
 class MongoDB:
     def __init__(self):
-        username = os.environ.get('mongo_username')
-        password = os.environ.get('mongo_password')
-        client = MongoClient(f"mongodb+srv://{username}:{password}@yongyong.834oknp.mongodb.net")
+        client = MongoClient("mongodb+srv://{}:{}@yongyong.834oknp.mongodb.net"
+                            .format(os.environ.get('mongo_username'), os.environ.get('mongo_password')))
+        # print(client.list_database_names())
         self.db_doc = client['doc'] # 각 기사 키워드
         self.db_hot = client['hot'] # 핫 토픽 20개
         print("mongodb connection complete!")
