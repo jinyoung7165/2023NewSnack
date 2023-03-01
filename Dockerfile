@@ -1,6 +1,3 @@
-# 경량 ubuntu
-# FROM alpine:3.14 
-
 FROM python:3
 
 # apt init
@@ -12,10 +9,7 @@ RUN apt-get update && \
 
 # install java
 ENV JAVA_HOME="/usr/lib/jvm/java-1.8-openjdk/jre"
-# RUN apt-get install -y openjdk-8-jdk
 RUN apt-get install -y g++ default-jdk
-# installing python3 and pip3
-# RUN apt-get install -y python3-pip python3-dev
 
 # apt cleanse
 RUN apt-get clean && \
@@ -54,6 +48,3 @@ COPY weighting/doc_tfidf.py ./weighting/
 COPY model_bulk ./
 COPY stopword.txt ./
 COPY run.py ./
-
-# Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
-CMD [ "python3", "run.py" ]
