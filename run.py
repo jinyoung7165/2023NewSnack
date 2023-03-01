@@ -46,7 +46,6 @@ def main():
     hot_topic = doc_tfidf.hot_topic()
     print("hottopic", time.time()-now_t)
     # DocTfidf class 이틀치(940news) ->13분
-
 #     run_db = RunDB(join_vector, hot_topic)
 #     run_db.setting()
 

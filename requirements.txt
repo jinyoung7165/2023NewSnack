@@ -1,7 +1,8 @@
-pandas == 1.5.0
-boto3 == 1.26.38
+pandas
+boto3
 python-dotenv
 pymongo
-konlpy
 requests
 gensim
+scikit-learn
+numpy
