@@ -26,7 +26,7 @@ def main():
     
     doc_word_dict = collections.defaultdict(list)
 
-    delta = datetime.timedelta(days=1) # 1일 후
+    delta = datetime.timedelta(days=2) # 1일 후
     end_date = datetime.datetime.now()
     today = end_date - datetime.timedelta(days=2) # 2일 전
 
@@ -39,6 +39,7 @@ def main():
         print(time.time()- now_t)
         today += delta # 하루씩 증가
 
+
     now_t = time.time()
     doc_tfidf = DocTfidf(word2vec, doc_word_dict)
     join_vector = doc_tfidf.final_word_process()
@@ -46,11 +47,14 @@ def main():
     hot_topic = doc_tfidf.hot_topic()
     print("hottopic", time.time()-now_t)
     # DocTfidf class 이틀치(940news) ->13분
-#     run_db = RunDB(join_vector, hot_topic)
-#     run_db.setting()
+    run_db = RunDB(join_vector, hot_topic)
+    run_db.setting()
 
-    # summary = Summary(list(docToText.main), hot_topic) # 3일치 확대 필요
-    # summary.setting()
+    doc_main_dict = run_db.doc_dict # summary에 넘겨줄 요약 대상 {"2023-02-01/0" : "본문 내용"}
+    db_doc = run_db.db_doc # summary에 주입할 db_doc
+
+    summary = Summary(hot_topic, doc_main_dict, db_doc)
+    summary.setting()
 
 if __name__ == '__main__':
     target = main()
