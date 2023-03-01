@@ -1,7 +1,6 @@
 from pymongo import MongoClient
 import datetime, os
 
-load_dotenv()
 class MongoDB:
     def __init__(self):
         client = MongoClient("mongodb+srv://{}:{}@yongyong.834oknp.mongodb.net"
