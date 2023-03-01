@@ -10,7 +10,6 @@ from preprocess.doc_text import DocToText
 from preprocess.tokenizer import Tokenizer
 from weighting.doc_tfidf import DocTfidf
 from weighting.sentence import Sentence
-from weighting.sentence_def import sentence as sentence_def
 from remote.mongo_method import RunDB
 from summary.summary import Summary
 # load .env
@@ -34,10 +33,9 @@ def main():
     for _ in range(1): #3으로 바꿔야 함!!!!!!!!!!!!
         today_name = today.strftime("%Y-%m-%d")
         now_t = time.time()
-        # sentence = Sentence(docToText, tokenizer, word2vec, today_name, "naver_news.csv")
-        # sentence.doc_process()
-        docs_word_arr = sentence_def(docToText, word2vec, today_name, "naver_news.csv")
-        doc_word_dict.update(docs_word_arr) # 하루 뉴스 470개에 221.7초
+        sentence = Sentence(docToText, tokenizer, word2vec, today_name, "naver_news.csv")
+        sentence.doc_process()
+        doc_word_dict.update(sentence.docs_word_arr) # 하루 뉴스 470개에 221.7초
         print(time.time()- now_t)
         today += delta # 하루씩 증가
 
