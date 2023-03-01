@@ -52,6 +52,7 @@ public class HotController {
             }
         }
         List<Doc> docs = new ArrayList<>();
+
         for (String docName : docArray) {
             docs.addAll(this.docMongoTemplate.findAll(Doc.class, docName));
         }
