@@ -57,6 +57,6 @@ class DocTfidf(ArrUtil): #전체 문서 기준
     
     def hot_topic(self):
         all_words = list(reduce(lambda x,y: x+y, self.doc_word_dict.values()))
-        result2=  Counter(list(word for word in all_words if word in self.word_list)).most_common(20)
+        result2=  Counter(list(word for word in all_words if word in self.word_list)).most_common(30)
         
         return result2
