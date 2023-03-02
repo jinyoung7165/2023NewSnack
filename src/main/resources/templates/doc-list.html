@@ -16,7 +16,7 @@
       <div class="summary" th:text="${#strings.length(doc.summary) &lt;= 100 ? doc.summary : doc.summary.substring(0, 100) + '...'}"></div>
       <button class="popup-btn" th:data-doc-index="${i.index}">Summary</button>
       <div id="dim-layer"></div>
-      <div id="popup">
+      <div class="popup">
         <h2 th:text="${doc.title}"></h2>
         <span class="date" th:text="${doc.date}"></span>
         <a class="link" th:href="${doc.link}" target="_blank">원문보기</a>
@@ -29,7 +29,7 @@
         <div>
           <span class="summary" th:text="${doc.summary}"></span>
         </div>
-        <button id="close-button">X</button>
+        <button class="close-button">X</button>
       </div>
 
       <div class="article-details">
@@ -108,7 +108,7 @@
     display: none;
   }
 
-  #popup {
+  .popup {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -119,32 +119,35 @@
     display: none;
   }
 
-  #popup img {
+  .popup img {
     max-width: 100%;
   }
 
-  #close-button {
+  .close-button {
     margin-top: 20px;
   }
-</style>
+}</style>
 
 <script>
     const summaryButtons = document.getElementsByClassName('popup-btn');
     const dimLayer = document.getElementById('dim-layer');
-    const popup = document.getElementById('popup');
-    const closeButton = document.getElementById('close-button');
+    const popups = document.getElementsByClassName('popup');
+    const closeButtons = document.getElementsByClassName('close-button');
 
     for (let i = 0; i < summaryButtons.length; i++) {
       summaryButtons[i].addEventListener('click', function() {
+        const index = this.getAttribute('data-doc-index');
         dimLayer.style.display = 'block';
-        popup.style.display = 'block';
+        popups[index].style.display = 'block';
       });
     }
 
-    closeButton.addEventListener('click', function() {
-      dimLayer.style.display = 'none';
-      popup.style.display = 'none';
-    });
+    for (let i = 0; i < closeButtons.length; i++) {
+      closeButtons[i].addEventListener('click', function() {
+        dimLayer.style.display = 'none';
+        popups[i].style.display = 'none';
+      });
+    }
 </script>
 </body>
 </html>
