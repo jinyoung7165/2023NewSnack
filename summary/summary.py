@@ -2,9 +2,7 @@ import requests
 import json
 import os
 import json
-from dotenv import load_dotenv
 
-load_dotenv()
 class Summary:
     def __init__(self, hot_topic, doc_main_arr, db_doc):
         self.hot_topic = hot_topic
