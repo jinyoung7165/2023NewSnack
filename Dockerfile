@@ -50,4 +50,4 @@ COPY stopword.txt ./
 COPY run.py ./
 
 # container 종료 막음
-CMD ["python3", "run.py"]
+CMD tail -f /dev/null
