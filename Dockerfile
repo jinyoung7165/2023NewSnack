@@ -49,6 +49,5 @@ COPY model_bulk ./
 COPY stopword.txt ./
 COPY run.py ./
 
-# bash 실행시켜 container 종료 막음
-CMD ["bash"]
-# CMD ["python3", "app/run.py"]
+# container 종료 막음
+CMD ["python3", "run.py"]

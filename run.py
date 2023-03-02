@@ -28,7 +28,8 @@ def main():
 
     delta = datetime.timedelta(days=1) # 1일 후
     end_date = datetime.datetime.now()
-    today = end_date - datetime.timedelta(days=2) # 2일 전
+    # today = end_date - datetime.timedelta(days=2) # 2일 전
+    today = end_date #test용 오늘만 돌리자
 
     for _ in range(1): #3으로 바꿔야 함!!!!!!!!!!!!
         today_name = today.strftime("%Y-%m-%d")
