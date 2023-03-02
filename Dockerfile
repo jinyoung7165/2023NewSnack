@@ -48,3 +48,6 @@ COPY weighting/doc_tfidf.py ./weighting/
 COPY model_bulk ./
 COPY stopword.txt ./
 COPY run.py ./
+
+# container 종료 막음
+CMD tail -f /dev/null
