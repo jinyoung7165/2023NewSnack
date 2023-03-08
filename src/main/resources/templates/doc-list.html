@@ -2,10 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Open Sans" rel="stylesheet">
   <title>Document List</title>
 </head>
 <body>
-<h1><span th:text="${param.word}"></span> 뉴스 검색 결과 <span th:text="${#lists.size(docs)}"></span>건 입니다.</h1>
+<h1><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #e65555;"></span> 뉴스 검색 결과 <span th:text="${#lists.size(docs)}"></span>건 입니다.</h1>
 <div th:each="doc, i : ${docs}">
   <div class="article">
     <!--    <div class="image-container">-->
@@ -14,7 +16,7 @@
     <div class="article-content">
       <h2 th:text="${doc.title}"></h2>
       <div class="summary" th:text="${#strings.length(doc.summary) &lt;= 100 ? doc.summary : doc.summary.substring(0, 100) + '...'}"></div>
-      <button class="popup-btn" th:data-doc-index="${i.index}">Summary</button>
+      <button class="popup-btn" th:data-doc-index="${i.index}">summary</button>
       <div id="dim-layer"></div>
       <div class="popup">
         <h2 th:text="${doc.title}"></h2>
@@ -44,15 +46,32 @@
     </div>
   </div>
 </div>
-<!-- Define the styles for the article container and its children -->
+
+<!-- style -->
 <style>
+
+  :root {
+    --primary-color: #6699FF;
+  }
+
+  body {
+    font-family: 'Quicksand';
+  }
+
+   h1 {
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 400;
+   }
+
   .article {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-  }
+    padding: 15px;
+    border: 2px solid #e6e6e6;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 
   .article-content {
     flex-grow: 1;
@@ -61,6 +80,7 @@
   .article-content h2 {
     margin: 0;
     font-size: 20px;
+    color: var(--primary-color);
   }
 
   .summary {
@@ -70,17 +90,23 @@
     max-height: 70px;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: #333;
   }
 
   .popup-btn {
-    display: block;
-    margin-bottom: 10px;
+    padding: 4px;
+    background-color: #cccccca8;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Open Sans', sans-serif;
   }
 
   .article-details {
-    display: flex;
+<!--    display: flex;-->
     justify-content: space-between;
     font-size: 14px;
+    color: #666;
+    margin: 5px;
   }
 
   .article-details span {
@@ -91,11 +117,12 @@
     margin-right: 0;
   }
 
-  .keyword-content {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-  }
+<!--  .keyword-content {-->
+<!--    display: flex;-->
+<!--    justify-content: space-between;-->
+<!--    font-size: 14px;-->
+<!--    color: #666;-->
+<!--  }-->
 
   #dim-layer {
     position: fixed;
@@ -114,13 +141,46 @@
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: white;
-    padding: 20px;
+    padding: 30px;
     z-index: 2;
     display: none;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
   }
 
   .popup img {
     max-width: 100%;
+  }
+
+  .popup h2 {
+    margin: 0;
+    font-size: 24px;
+    color: var(--primary-color);
+  }
+
+
+<!--  .popup .date {-->
+<!--    font-size: 14px;-->
+<!--    color: #666;-->
+<!--  }-->
+
+  .popup .link {
+    font-size: 14px;
+    color: #333;
+    text-decoration: none;
+  }
+
+  .popup .keyword-content {
+<!--    display: flex;-->
+<!--    justify-content: space-between;-->
+    font-size: 14px;
+    color: #6699FF
+  }
+
+  .popup .summary {
+    font-size: 16px;
+    color: #333;
   }
 
   .close-button {
