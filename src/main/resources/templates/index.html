@@ -5,7 +5,7 @@
     <title>Word Cloud</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Impact" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nanum Gothic" rel="stylesheet">
     <style>
         svg {
             width: 80%;
@@ -55,7 +55,7 @@
                 .enter().append("text")
                   .attr("id", function(d) { return d.text; }) // set the id property to the text value
                   .style("font-size", function(d) { return d.size + "px"; })
-                  .style("font-family", "Impact")
+                  .style("font-family", "Nanum Gothic")
                   .style("fill", function(d, i) { return colorScale(i); })
                   .attr("text-anchor", "middle")
                   .attr("transform", function(d) {
