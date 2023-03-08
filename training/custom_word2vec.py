@@ -15,8 +15,8 @@ def preprocess(doc, whole_word, tokenizer: Tokenizer):
 def custom_train(docToText: DocToText, tokenizer: Tokenizer):
     whole_word = Manager().list()
     delta = datetime.timedelta(days=1) # 1일 후
-    end_date = datetime.datetime.now()
-    now_date = end_date - datetime.timedelta(days=30) # 30일 전.테스트용
+    end_date = datetime.datetime.now()- datetime.timedelta(days=4) #2023-03-03
+    now_date = end_date - datetime.timedelta(days=45) # 45일 전.2023-01-17
     while True:
         docToText.csv_to_text("{}".format(now_date.date()), "naver_news.csv")
         docs = list(docToText.main) # ["첫번째 문서 두번째 문장", "두번째 문서 두번째 문장",]
@@ -26,7 +26,7 @@ def custom_train(docToText: DocToText, tokenizer: Tokenizer):
         if(now_date.date() == end_date.date()):
             break
         now_date += delta # 1일씩 증가해주기
-    print(len(whole_word))    #17700 -> 17665나옴 [[], [], [], ...]
+    print(len(whole_word))  #24902건 나옴 [[], [], [], ...]
         # skip-gram이 좋은 것 같다.'외교부'는 '이란'이 가장 동일하게 나옴
     model = Word2Vec(sentences = list(whole_word), vector_size=10, min_count = 2, 
                         window = 5, workers = 3, sg = 1)
