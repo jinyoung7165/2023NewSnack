@@ -55,10 +55,10 @@ def main():
     print("rundb", time.time()-now_t)
 
     doc_main_dict = run_db.doc_dict # summary에 넘겨줄 요약 대상 {"2023-02-01/0" : "본문 내용"}
-    db_doc = run_db.db_doc # summary에 주입할 db_doc
+    doc_c = run_db.doc_c # summary에 주입할 날짜_doc collection
 
     now_t = time.time()
-    summary = Summary(hot_topic, doc_main_dict, db_doc)
+    summary = Summary(hot_topic, doc_main_dict, doc_c)
     summary.setting()
     print("summary", time.time()-now_t)
 

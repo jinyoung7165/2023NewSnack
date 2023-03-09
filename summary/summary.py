@@ -7,19 +7,16 @@ class Summary:
     def __init__(self, hot_topic, doc_main_arr, db_doc):
         self.hot_topic = hot_topic
         self.doc_main_arr = doc_main_arr # 요약할 기사들의 본문(사전)
-        self.db_doc = db_doc
+        self.db_doc = db_doc #날짜_doc collection
 
     def setting(self): 
         for key, value in self.doc_main_arr.items():
             filter = {'doc': key}
-            if (self.db_doc[key].find_one({'summary': {'$exists': False}})): # summary를 하지 않은 것만 대상으로 요약
+            if (self.db_doc.find_one({'summary': {'$exists': False}})): # summary를 하지 않은 것만 대상으로 요약
                 docu = {
-                    'summary': self.summarize_text(value.replace('\n', '')) # 개행 없애기(개행 너무 많으면 요약 에러 발생)
+                    'summary': self.summarize_text(value) # 개행 없애기(개행 너무 많으면 요약 에러 발생)
                 }
-                self.db_doc[key].update_one(filter, { "$set" : docu })
-                print("summary")
-            else:
-                print("already summarized")
+                self.db_doc.update_one(filter, { "$set" : docu })
         print("summary update complete!")
 
     # 요약 함수
@@ -61,8 +58,7 @@ class Summary:
             if(rescode == 200):
                 summary = json.loads(res.text)["summary"]
             else:
-                print("Error : " + res.text)
-            # summary = res.json()["summary"]
+                summary = "Insufficient valid sentence"
             summaries.append(summary)
 
         final_summary = "\n".join(summaries)
