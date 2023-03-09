@@ -7,7 +7,7 @@
   <title>Document List</title>
 </head>
 <body>
-<h1><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #e65555;"></span> 뉴스 검색 결과 <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span>건 입니다.</h1>
+<h1><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #e65555;"></span> 뉴스 검색 결과 <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span> 건입니다.</h1>
 <div th:each="doc, i : ${docs}">
   <div class="article">
         <div class="image-container">
@@ -29,7 +29,7 @@
         </div>
         <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Image">
         <div>
-          <span class="summary" th:text="${doc.summary}"></span>
+          <span class="summary" th:utext="${doc.summary.replace('\\.', '.<br/>')}"></span>
         </div>
         <button class="close-button">X</button>
       </div>
@@ -151,12 +151,14 @@
 
   .popup img {
     max-width: 100%;
+    display: block;
+    margin: 0 auto;
   }
 
   .popup h2 {
     margin: 0;
     font-size: 24px;
-    color: var(--primary-color);
+    color: #414c62;
   }
 
 
@@ -181,10 +183,12 @@
   .popup .summary {
     font-size: 16px;
     color: #333;
+    white-space: pre-line;
   }
 
   .close-button {
     margin-top: 20px;
+    border: 4px solid #ccc0;
   }
 }</style>
 
