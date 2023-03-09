@@ -40,7 +40,10 @@ def current_page_items(pageIdx, return_list): #전체페이지에서 각 기사�
             url_headline = photo_or_not[1].find("a") if len(photo_or_not) > 1 \
                 else photo_or_not[0].find("a") #대표 사진 없는 기사
             item_url = url_headline.get("href")
-            return_list.append([item_url, item_press]) #링크, 언론사
+            item_image = photo_or_not[0].select_one("a > img").attrs["src"] if len(photo_or_not) > 1 \
+                else None #대표 사진 없는 기사
+            if item_image: item_image = item_image[:item_image.find('?type=')]
+            return_list.append([item_url, item_press, item_image]) #링크, 언론사, 사진
 
         ths = []
         for item in all_items:
@@ -114,9 +117,10 @@ def save_in_mongo(mongodb, return_list):
             'doc': collection_name, # 2023-02-10/0
             'link': return_list[i][0], # 링크
             'press': return_list[i][1], # 언론사
-            'title': return_list[i][2], # 제목
-            'date': return_list[i][3], # 날짜 ('2023-02-21 12:53:01' 형식)
-            'main': return_list[i][4] # 본문
+            'image': return_list[i][2], # 이미지
+            'title': return_list[i][3], # 제목
+            'date': return_list[i][4], # 날짜 ('2023-02-21 12:53:01' 형식)
+            'main': return_list[i][5], # 본문
         }
         # db["{}".format(collection_name)].drop()
         # 2023-02-10/0 이런 식으로 저장
