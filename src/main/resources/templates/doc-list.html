@@ -7,16 +7,16 @@
   <title>Document List</title>
 </head>
 <body>
-<h1><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #e65555;"></span> 뉴스 검색 결과 <span th:text="${#lists.size(docs)}"></span>건 입니다.</h1>
+<h1><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #e65555;"></span> 뉴스 검색 결과 <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span>건 입니다.</h1>
 <div th:each="doc, i : ${docs}">
   <div class="article">
-    <!--    <div class="image-container">-->
-    <!--      <img th:src="${doc.image}" alt="Article Image">-->
-    <!--    </div>-->
+        <div class="image-container">
+          <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
+        </div>
     <div class="article-content">
       <h2 th:text="${doc.title}"></h2>
       <div class="summary" th:text="${#strings.length(doc.summary) &lt;= 100 ? doc.summary : doc.summary.substring(0, 100) + '...'}"></div>
-      <button class="popup-btn" th:data-doc-index="${i.index}">summary</button>
+      <button class="popup-btn" th:data-doc-index="${i.index}">details</button>
       <div id="dim-layer"></div>
       <div class="popup">
         <h2 th:text="${doc.title}"></h2>
@@ -27,7 +27,7 @@
           <span class="keyword" th:text="${doc.keyword['top2'] ?: ''}"></span>
           <span class="keyword" th:text="${doc.keyword['top3'] ?: ''}"></span>
         </div>
-<!--        <img src="image.jpg" alt="Image">-->
+        <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Image">
         <div>
           <span class="summary" th:text="${doc.summary}"></span>
         </div>
@@ -75,12 +75,13 @@
 
   .article-content {
     flex-grow: 1;
+    margin: 20px;
   }
 
   .article-content h2 {
     margin: 0;
     font-size: 20px;
-    color: var(--primary-color);
+    color: #414c62;
   }
 
   .summary {
@@ -95,8 +96,7 @@
 
   .popup-btn {
     padding: 4px;
-    background-color: #cccccca8;
-    border: 1px solid #ccc;
+    border: 1px solid #ccc0;
     border-radius: 5px;
     font-family: 'Open Sans', sans-serif;
   }
