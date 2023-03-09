@@ -22,6 +22,7 @@ public class Doc {
     private String title;
     private String main;
     private String press;
+    private String image;
     private String summary;
     // keyword는 dictionary 타입
     private Map<String, String> keyword;
