@@ -22,9 +22,7 @@ label = ["링크", "언론사", "이미지", "제목", "날짜", "본문"]
 filename = 'naver_news.csv'
 today = date.strftime("%Y%m%d")
 
-today_for_collection = date.now().date()
-
-now_date = date.date()
+now_date = str(date.date())
 def current_page_items(pageIdx, return_list): #전체페이지에서 각 기사의 링크, 메타데이터 저장해둠
     try:
         page_url = "https://news.naver.com/main/list.nhn?mode=LSD&mid=sec&sid1=101&date={}&page={}".format(today, pageIdx)
@@ -112,9 +110,9 @@ def convert_csv(return_list):
 
 def save_in_mongo(mongodb, return_list):
     for i in range(len(return_list)):
-        collection_name = today_for_collection.strftime("%Y-%m-%d") + "/" + str(i)
+        doc_name = now_date + "/" + str(i)
         docu = {
-            'doc': collection_name, # 2023-02-10/0
+            'doc': doc_name, # 2023-02-10/0
             'link': return_list[i][0], # 링크
             'press': return_list[i][1], # 언론사
             'image': return_list[i][2], # 이미지
@@ -122,9 +120,7 @@ def save_in_mongo(mongodb, return_list):
             'date': return_list[i][4], # 날짜 ('2023-02-21 12:53:01' 형식)
             'main': return_list[i][5], # 본문
         }
-        # db["{}".format(collection_name)].drop()
-        # 2023-02-10/0 이런 식으로 저장
-        mongodb[collection_name].insert_one(docu)
+        mongodb.insert_one(docu) #날짜_doc collection에 삽입
 
 def chunks(l, n):
     for i in range(0, len(l), n):
@@ -132,7 +128,7 @@ def chunks(l, n):
             
 def crawl():
     s3 = S3() #s3 connection 1번
-    mongodb = MongoDB().db_doc #mongo connection 1번
+    mongodb = MongoDB().doc_c #mongo doc collection
     print(today, "오늘의 crawl 시작")
     return_list = Manager().list()
 
