@@ -18,7 +18,7 @@ load_dotenv()
 
 date = datetime.datetime.now()
 
-label = ["링크", "언론사", "제목", "날짜", "본문"]
+label = ["링크", "언론사", "이미지", "제목", "날짜", "본문"]
 filename = 'naver_news.csv'
 today = date.strftime("%Y%m%d")
 
