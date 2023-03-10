@@ -3,7 +3,7 @@ package yongyong.graduate.hotDomain;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
-import yongyong.graduate.common.TodayHot;
+import yongyong.graduate.common.annotation.TodayHot;
 
 import java.util.List;
 

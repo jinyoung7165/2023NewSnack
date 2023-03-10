@@ -3,7 +3,7 @@ package yongyong.graduate.docDomain;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
-import yongyong.graduate.common.TodayDoc;
+import yongyong.graduate.common.annotation.TodayDoc;
 
 import java.util.List;
 

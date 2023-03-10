@@ -1,19 +1,17 @@
-package yongyong.graduate.common;
+package yongyong.graduate.common.annotation;
 
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.lang.annotation.*;
 
-@Today
 @Document
 @Inherited
 @Documented
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TodayHot {
-
-    String collection = Today.lastUpdated + "_hot";
+public @interface TodayDoc {
+    String collection = "2023-03-09_doc";
 
     @AliasFor("collection")
     String value() default collection;

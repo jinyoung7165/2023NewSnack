@@ -1,10 +1,10 @@
-package yongyong.graduate.common;
+package yongyong.graduate.common.annotation;
 
 import java.lang.annotation.*;
 
 @Inherited
 @Documented
-@Target({ElementType.FIELD, ElementType.LOCAL_VARIABLE, ElementType.TYPE })
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Today {
     String lastUpdated = "2023-03-09";
