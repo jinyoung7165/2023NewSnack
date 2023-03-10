@@ -10,7 +10,7 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 
 @Component
-public class ReflectUtil {
+public class ReflectUtil { //(collection 이름) 날짜 update 수행
 
     public static void changeAnnotationValue(String key, Object newValue, Annotation... annotations){
         for (Annotation annotation : annotations) {
