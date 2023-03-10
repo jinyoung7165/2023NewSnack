@@ -28,7 +28,7 @@
             .range(colors);
         if (hotWords) {
             data = hotWords.map(function(hotWord) {
-                return {text: hotWord._id, size: hotWord.weight * 1000, doc: hotWord.doc};
+                return {text: hotWord.word, size: hotWord.weight * 1000, doc: hotWord.doc};
             });
         }
         console.log(hotWords);
