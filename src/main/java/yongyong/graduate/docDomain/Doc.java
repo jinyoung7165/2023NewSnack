@@ -3,15 +3,13 @@ package yongyong.graduate.docDomain;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
+import yongyong.graduate.common.TodayDoc;
 
-import java.util.Dictionary;
-import java.util.Map;
+import java.util.List;
 
 @Data
-@NoArgsConstructor
+@TodayDoc
 @AllArgsConstructor
-@Getter
-@Setter
 public class Doc {
     @Id
     @Field("_id")
@@ -22,9 +20,10 @@ public class Doc {
     private String title;
     private String main;
     private String press;
+    private String image;
     private String summary;
     // keyword는 dictionary 타입
-    private Map<String, String> keyword;
+    private List<String> keyword;
     private String date;
     private String link;
 }
