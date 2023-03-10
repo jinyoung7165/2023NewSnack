@@ -1,6 +1,6 @@
 package yongyong.graduate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import yongyong.graduate.docDomain.DocRepository;
 import yongyong.graduate.hotDomain.Hot;
@@ -9,17 +9,11 @@ import yongyong.graduate.hotDomain.HotRepository;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class HotService {
 
     private final HotRepository hotRepository;
     private final DocRepository docRepository;
-
-    @Autowired
-    public HotService(HotRepository hotRepository, DocRepository docRepository) {
-        this.hotRepository = hotRepository;
-        this.docRepository = docRepository;
-    }
-
 
     public List<Hot> findAll() {
         return hotRepository.findAll();

@@ -1,37 +1,24 @@
 package yongyong.graduate.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import yongyong.graduate.docDomain.Doc;
-import yongyong.graduate.docDomain.DocRepository;
-import yongyong.graduate.docDomain.DocRepositoryImpl;
 import yongyong.graduate.hotDomain.Hot;
 import yongyong.graduate.hotDomain.HotRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Controller
 @RequiredArgsConstructor
-@Controller // index.html과 연동하려면 @RestController는 안 됨
 public class HotController {
 
-    @Qualifier("db2MongoTemplate")
-    @Autowired
-    private MongoTemplate docMongoTemplate;
-
-    @Autowired
-    private HotRepository hotRepository;
-
-    @Autowired
-    private DocRepository docRepository;
+    private final MongoTemplate docMongoTemplate;
+    private final HotRepository hotRepository;
 
     @GetMapping("/hot")
     public String showHot(Model model) {
