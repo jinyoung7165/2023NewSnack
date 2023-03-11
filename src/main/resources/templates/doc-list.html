@@ -23,10 +23,9 @@
         <span class="date" th:text="${doc.date}"></span>
         <a class="link" th:href="${doc.link}" target="_blank">원문보기</a>
         <div class="keyword-content">
-          <span class="keyword" th:text="${doc.keyword[0] ?: ''}"></span>
-          <span class="keyword" th:text="${doc.keyword[1] ?: ''}"></span>
-          <span class="keyword" th:text="${doc.keyword[2] ?: ''}"></span>
+          <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}"></span>
         </div>
+
         <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Image">
         <div>
           <span class="summary" th:utext="${doc.summary.replace('\\.', '.<br/>')}"></span>
@@ -38,9 +37,8 @@
         <span class="press" th:text="${doc.press}"></span>
         <span class="date" th:text="${doc.date}"></span>
         <div class="keyword-content">
-          <span class="keyword" th:text="${doc.keyword[0] ?: ''}"></span>
-          <span class="keyword" th:text="${doc.keyword[1] ?: ''}"></span>
-          <span class="keyword" th:text="${doc.keyword[2] ?: ''}"></span>
+          <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}">&nbsp;</span>
+
         </div>
       </div>
     </div>
@@ -177,7 +175,12 @@
 <!--    display: flex;-->
 <!--    justify-content: space-between;-->
     font-size: 14px;
-    color: #6699FF
+    color: #6699FF;
+  }
+
+
+  .popup .keyword-content span{
+    margin-right: 10px;
   }
 
   .popup .summary {
