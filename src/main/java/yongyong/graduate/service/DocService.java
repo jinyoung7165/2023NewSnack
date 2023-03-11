@@ -1,11 +1,5 @@
 package yongyong.graduate.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import yongyong.graduate.docDomain.Doc;
-
-import java.util.List;
-
 //@Service
 //@RequiredArgsConstructor
 //public class DocService {
