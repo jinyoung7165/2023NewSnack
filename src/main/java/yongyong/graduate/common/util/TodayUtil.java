@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 import yongyong.graduate.common.annotation.Today;
 import yongyong.graduate.common.annotation.TodayDoc;
 import yongyong.graduate.common.annotation.TodayHot;
-import yongyong.graduate.docDomain.Doc;
-import yongyong.graduate.hotDomain.Hot;
+import yongyong.graduate.domain.Doc;
+import yongyong.graduate.domain.Hot;
 
 @Today
 @Component

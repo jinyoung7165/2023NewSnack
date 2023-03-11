@@ -18,7 +18,7 @@ public class GraduateApplication {
 	}
 
 	public static void main(String[] args) {
-		log.info("[GraduateApplication] today : {}", TodayUtil.getToday()); //현재 DB 가져올 날짜 확인
+		log.info("[GraduateApplication] today : {}", TodayUtil.getToday()); //초기 날짜 확인
 		SpringApplication.run(GraduateApplication.class, args);
 	}
 }

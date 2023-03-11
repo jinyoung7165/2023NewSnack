@@ -23,9 +23,9 @@
         <span class="date" th:text="${doc.date}"></span>
         <a class="link" th:href="${doc.link}" target="_blank">원문보기</a>
         <div class="keyword-content">
-          <span class="keyword" th:text="${doc.keyword['top1'] ?: ''}"></span>
-          <span class="keyword" th:text="${doc.keyword['top2'] ?: ''}"></span>
-          <span class="keyword" th:text="${doc.keyword['top3'] ?: ''}"></span>
+          <span class="keyword" th:text="${doc.keyword[0] ?: ''}"></span>
+          <span class="keyword" th:text="${doc.keyword[1] ?: ''}"></span>
+          <span class="keyword" th:text="${doc.keyword[2] ?: ''}"></span>
         </div>
 <!--        <img src="image.jpg" alt="Image">-->
         <div>
@@ -38,9 +38,9 @@
         <span class="press" th:text="${doc.press}"></span>
         <span class="date" th:text="${doc.date}"></span>
         <div class="keyword-content">
-          <span class="keyword" th:text="${doc.keyword['top1'] ?: ''}"></span>
-          <span class="keyword" th:text="${doc.keyword['top2'] ?: ''}"></span>
-          <span class="keyword" th:text="${doc.keyword['top3'] ?: ''}"></span>
+          <span class="keyword" th:text="${doc.keyword[0] ?: ''}"></span>
+          <span class="keyword" th:text="${doc.keyword[1] ?: ''}"></span>
+          <span class="keyword" th:text="${doc.keyword[2] ?: ''}"></span>
         </div>
       </div>
     </div>

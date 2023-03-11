@@ -1,4 +1,4 @@
-package yongyong.graduate.controller;
+package yongyong.graduate.common.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,8 +7,8 @@ import yongyong.graduate.common.annotation.Today;
 import yongyong.graduate.common.annotation.TodayDoc;
 import yongyong.graduate.common.annotation.TodayHot;
 import yongyong.graduate.common.util.TodayUtil;
-import yongyong.graduate.docDomain.Doc;
-import yongyong.graduate.hotDomain.Hot;
+import yongyong.graduate.domain.Doc;
+import yongyong.graduate.domain.Hot;
 
 import java.time.LocalDate;
 

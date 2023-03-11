@@ -1,4 +1,4 @@
-package yongyong.graduate.hotDomain;
+package yongyong.graduate.domain;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
