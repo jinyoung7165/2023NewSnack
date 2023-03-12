@@ -28,7 +28,7 @@
 
         <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Image">
         <div>
-          <span class="summary" th:utext="${doc.summary.replace('\\.', '.<br/>')}"></span>
+          <span class="summary" th:utext="${#strings.replace(doc.summary, '.', '.&lt;br/&gt;')}"></span>
         </div>
         <button class="close-button">X</button>
       </div>
