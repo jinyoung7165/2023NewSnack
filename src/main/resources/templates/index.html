@@ -1,28 +1,62 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{fragments/layout}">
 <head>
     <meta charset="UTF-8">
     <title>Word Cloud</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Nanum Gothic" rel="stylesheet">
+<!--    <link href="https://fonts.googleapis.com/css?family=Noto Sans Korean" rel="stylesheet">-->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         svg {
-            width: 80%;
+            width: 70%;
             height: 80%;
             margin: auto;
             display: block;
+            border: 1px solid #d9e1e5;
+            background-color: #f5f8fc;
+            font-weight: 400;
+        }
+
+        #keyword {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+            font-size: 30px;
+            font-weight: 500px;
+            font-family: Noto Sans KR;
+        }
+
+        #doc-num {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+            padding: 5px;
+        }
+
+        #date {
+          position: absolute;
+          top: 0;
+          right: 0;
+          margin-top: 110px;
+          margin-right: 15%;
         }
     </style>
 </head>
-<body>
-<div th:replace="fragment/header :: header"></div>
+<body layout:fragment="content">
+<!--<div th:replace="fragment/header :: header"></div>-->
+<div id="keyword">오늘의 경제 키워드</div>
+<div id="doc-num">분석 대상 뉴스 1,470건</div>
+<div id="date"th:text="${date}"></div>
 <div id="wordcloud"></div>
+
 <script th:inline="javascript">
         var width = window.innerWidth * 0.8, height = window.innerHeight * 0.8;
         var hotWords = /*[[${hotWords}]]*/ null;
         var data = [];
-        var colors = ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf", "#9edae5"];
+        var colors = ["#23C4AE", "#0F58FF", "#F78E00"];
 
         var colorScale = d3.scaleOrdinal()
             .range(colors);
@@ -55,7 +89,7 @@
                 .enter().append("text")
                   .attr("id", function(d) { return d.text; }) // set the id property to the text value
                   .style("font-size", function(d) { return d.size + "px"; })
-                  .style("font-family", "Nanum Gothic")
+                  .style("font-family", "Noto Sans KR")
                   .style("fill", function(d, i) { return colorScale(i); })
                   .attr("text-anchor", "middle")
                   .attr("transform", function(d) {

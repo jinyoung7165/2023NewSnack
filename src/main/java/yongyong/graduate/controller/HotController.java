@@ -25,6 +25,8 @@ public class HotController {
         List<Hot> hotWords = mongoTemplate.findAll(Hot.class, TodayUtil.todayHot());
         System.out.println("hotWords size: " + hotWords.size());
         model.addAttribute("hotWords", hotWords);
+        model.addAttribute("date",TodayUtil.getToday());
+        System.out.println(TodayUtil.getToday());
         return "index";
     }
 }
