@@ -26,6 +26,8 @@ public class HotController {
         System.out.println(hotWords);
         System.out.println("hotWords size: " + hotWords.size());
         model.addAttribute("hotWords", hotWords);
+        model.addAttribute("date",TodayUtil.getToday());
+        System.out.println(TodayUtil.getToday());
         return "index";
     }
 }
