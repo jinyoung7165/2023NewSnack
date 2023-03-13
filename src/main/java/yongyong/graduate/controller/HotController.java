@@ -19,7 +19,7 @@ public class HotController {
 
     private final MongoTemplate mongoTemplate;
 
-    @GetMapping("/hot")
+    @GetMapping()
     public String showHot(Model model) {
         log.info("Hot annotation :{}", Hot.class.getAnnotation(TodayHot.class).value());
         List<Hot> hotWords = mongoTemplate.findAll(Hot.class, TodayUtil.todayHot());
