@@ -26,9 +26,11 @@
           <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}"></span>
         </div>
 
-        <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Image">
+        <div class="popup-image-container" th:if="${doc.image != null}">
+          <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
+        </div>
         <div>
-          <span class="summary" th:utext="${#strings.replace(doc.summary, '.', '.&lt;br/&gt;')}"></span>
+          <span class="summary" th:utext="${doc.summary.replace('.','.&lt;br/&gt;&lt;br/&gt;')}"></span>
         </div>
         <button class="close-button">X</button>
       </div>
@@ -150,7 +152,7 @@
   .popup img {
     max-width: 100%;
     display: block;
-    margin: 0 auto;
+    margin: 35px auto;
   }
 
   .popup h2 {
