@@ -9,7 +9,7 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Slf4j
-//@SuppressWarnings("unused")
+@SuppressWarnings("unused")
 @SpringBootApplication
 public class GraduateApplication {
 	@PostConstruct
