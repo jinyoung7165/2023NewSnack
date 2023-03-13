@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{fragments/layout}">
 <head>
     <meta charset="UTF-8">
     <title>Word Cloud</title>
@@ -9,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         svg {
-            width: 80%;
+            width: 70%;
             height: 80%;
             margin: auto;
             display: block;
@@ -18,38 +20,36 @@
             font-weight: 400;
         }
 
+        #keyword {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+            font-size: 30px;
+            font-weight: 500px;
+            font-family: Noto Sans KR;
+        }
+
+        #doc-num {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+            padding: 5px;
+        }
+
+        #date {
+          width: 70%;
+            height: 80%;
+            margin: auto;
+            padding: 5px;
+        }
     </style>
 </head>
-<body>
-<div th:replace="fragment/header :: header"></div>
+<body layout:fragment="content">
+<!--<div th:replace="fragment/header :: header"></div>-->
 <div id="keyword">오늘의 경제 키워드</div>
-<div id="doc-num">분석 대상 뉴스 1,470건</div>
-<div id="date" th:text="${date}"></div>
+<div id="doc-num">분석 대상 뉴스 1,470건</div><div id="date" th:text="${date}"></div>
 <div id="wordcloud"></div>
-<style>
-    #keyword {
-        width: 80%;
-        height: 80%;
-        margin: auto;
-        font-size: 30px;
-        font-weight: 500px;
-        font-family: Noto Sans KR;
-    }
 
-    #doc-num {
-        width: 80%;
-        height: 80%;
-        margin: auto;
-        padding: 5px;
-    }
-
-    #date {
-        width: 80%;
-        height: 80%;
-        margin: auto;
-        padding: 10px;
-    }
-</style>
 <script th:inline="javascript">
         var width = window.innerWidth * 0.8, height = window.innerHeight * 0.8;
         var hotWords = /*[[${hotWords}]]*/ null;
