@@ -31,7 +31,7 @@
           <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
         </div>
         <div>
-          <span class="summary" th:utext="${doc.summary.replace('.','.&lt;br/&gt;&lt;br/&gt;')}"></span>
+          <span class="summary" th:utext="${doc.summary.replace('.','.&lt;br/&gt;')}"></span>
         </div>
         <button class="close-button">X</button>
       </div>
