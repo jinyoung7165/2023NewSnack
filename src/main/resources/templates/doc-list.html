@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
 <head>
   <meta charset="UTF-8">
   <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
@@ -7,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
   <title>Document List</title>
 </head>
-<body>
+<body layout:fragment="content">
 <h1><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #e65555;"></span> 뉴스 검색 결과 <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span> 건입니다.</h1>
 <div th:each="doc, i : ${docs}">
   <div class="article">
