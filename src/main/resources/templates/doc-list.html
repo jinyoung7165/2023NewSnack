@@ -19,9 +19,9 @@
       <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
     </div>
     <div class="article-content">
-      <h2 th:text="${doc.title}"></h2>
+      <h2 class="title" th:text="${doc.title}" th:data-doc-index="${i.index}"></h2>
       <div class="summary" th:text="${#strings.length(doc.summary) &lt;= 100 ? doc.summary : doc.summary.substring(0, 100) + '...'}"></div>
-      <button class="popup-btn" th:data-doc-index="${i.index}">details</button>
+<!--      <button class="popup-btn" th:data-doc-index="${i.index}">details</button>-->
       <div id="dim-layer"></div>
       <div class="popup">
         <h2 th:text="${doc.title}"></h2>
@@ -116,7 +116,7 @@
     justify-content: space-between;
     font-size: 14px;
     color: #666;
-    margin: 5px;
+    margin: 2px;
   }
 
   .article-details span {
@@ -127,12 +127,12 @@
     margin-right: 0;
   }
 
-<!--  .keyword-content {-->
-<!--    display: flex;-->
+  .keyword-content {
+    display: flex;
 <!--    justify-content: space-between;-->
-<!--    font-size: 14px;-->
-<!--    color: #666;-->
-<!--  }-->
+    font-size: 14px;
+    color: #6699FF;
+  }
 
   #dim-layer {
     position: fixed;
@@ -222,13 +222,18 @@
 }</style>
 
 <script>
-    const summaryButtons = document.getElementsByClassName('popup-btn');
-    const dimLayer = document.getElementById('dim-layer');
+    const titles = document.getElementsByClassName('title');
     const popups = document.getElementsByClassName('popup');
+    const dimLayer = document.getElementById('dim-layer');
     const closeButtons = document.getElementsByClassName('close-button');
 
-    for (let i = 0; i < summaryButtons.length; i++) {
-      summaryButtons[i].addEventListener('click', function() {
+<!--    function showPopup(element) {-->
+<!--        const index = element.getAttribute('data-doc-index');-->
+<!--        popups[index].style.display = 'block';-->
+<!--    }-->
+
+    for (let i = 0; i < titles.length; i++) {
+      titles[i].addEventListener('click', function() {
         const index = this.getAttribute('data-doc-index');
         dimLayer.style.display = 'block';
         popups[index].style.display = 'block';
