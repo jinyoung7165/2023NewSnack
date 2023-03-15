@@ -6,3 +6,4 @@ requests
 gensim
 scikit-learn
 numpy
+pymongo

@@ -1,22 +1,22 @@
 import requests
 import json
 import os
-import json
 
 class Summary:
-    def __init__(self, hot_topic, doc_main_arr, db_doc):
+    def __init__(self, hot_topic, doc_main_arr, db):
         self.hot_topic = hot_topic
         self.doc_main_arr = doc_main_arr # 요약할 기사들의 본문(사전)
-        self.db_doc = db_doc #날짜_doc collection
+        self.db = db #newsnack db
 
     def setting(self): 
         for key, value in self.doc_main_arr.items():
-            filter = {'doc': key}
-            if (self.db_doc.find_one({'summary': {'$exists': False}})): # summary를 하지 않은 것만 대상으로 요약
-                docu = {
-                    'summary': self.summarize_text(value) # 개행 없애기(개행 너무 많으면 요약 에러 발생)
-                }
-                self.db_doc.update_one(filter, { "$set" : docu })
+            date = key.split('/')[0] #collection 날짜        
+            doc_c = self.db['{}_doc'.format(date)] # 해당 hot topic 문서를 가진 doc collection
+            if (doc_c.find_one({'doc': key, 'summary': {'$exists': True}})): continue #이미 summary가 존재하는 doc이면 continue
+            docu = {
+                'summary': self.summarize_text(value)
+            }
+            doc_c.update_one({'doc': key}, { "$set" : docu })
         print("summary update complete!")
 
     # 요약 함수
