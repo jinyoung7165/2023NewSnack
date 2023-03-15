@@ -2,9 +2,7 @@ package yongyong.graduate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import yongyong.graduate.common.util.TodayUtil;
 import yongyong.graduate.domain.Doc;
 import yongyong.graduate.domain.Hot;
-import yongyong.graduate.service.DocService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DocController {
     private final MongoTemplate mongoTemplate;
-    private final DocService docService;
+
     @GetMapping("/docs")
     public String showDocs(Model model, @RequestParam("word") String word, @PageableDefault(page=0, size=5) Pageable pageable) {
         List<Hot> hotWords = mongoTemplate.find(
@@ -45,22 +42,34 @@ public class DocController {
             );
         }
 
-        Page<Doc> docList = docService.docList(pageable);
+        // 각 핫토픽의 기사 개수
+        long totalDocs = mongoTemplate.count(Query.query(Criteria.where("doc").in(docNames)), Doc.class, TodayUtil.todayDoc());
+//        System.out.println(totalDocs);
 
-        //페이지블럭 처리
-        //1을 더해주는 이유는 pageable은 0부터라 1을 처리하려면 1을 더해서 시작해주어야 한다.
-        int nowPage = docList.getPageable().getPageNumber() + 1;
-        //-1값이 들어가는 것을 막기 위해서 max값으로 두 개의 값을 넣고 더 큰 값을 넣어주게 된다.
-        int startPage =  Math.max(nowPage - 4, 1);
-        int endPage = Math.min(nowPage+9, docList.getTotalPages());
+        // pageable 객체 생성
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
+        // paging 처리된 상태로 doc 가져옴
+       List<Doc> docList = mongoTemplate.find(Query.query(Criteria.where("doc").in(docNames)).with(pageable), Doc.class, TodayUtil.todayDoc());
+
+        // 전체 페이지 개수
+        int totalPages = (int) Math.ceil((double) totalDocs / pageable.getPageSize());
+
+        int nowPage = pageable.getPageNumber() + 1; // 처음이 0 이므로
+
+        // 시작 페이지 -> 현재 페이징 된 페이지 기준 앞으로 4개
+        int startPage = Math.max(nowPage - 4, 1);
+
+        // 끝 페이지 -> 현재 페이징 된 페이지 기준 뒤로 9개
+        int endPage = Math.min(nowPage + 9, totalPages);
+
         model.addAttribute("docs", docs);
-//        model.addAttribute("pages", docList);
-//        model.addAttribute("maxPage", 5);
-        model.addAttribute("nowPage",nowPage);
+        model.addAttribute("nowPage", nowPage);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
-        model.addAttribute("currentPage", pageable.getPageNumber()); // 현재 페이지
-        model.addAttribute("pageSize", pageable.getPageSize()); // 페이지 사이즈
+        model.addAttribute("currentPage", pageable.getPageNumber());
+        model.addAttribute("pageSize", pageable.getPageSize());
+        model.addAttribute("totalPages", totalPages);
         return "doc-list";
     }
 }
