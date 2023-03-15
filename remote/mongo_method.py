@@ -7,7 +7,6 @@ class MongoDB:
                             .format(os.environ.get('mongo_username'), os.environ.get('mongo_password')))
         self.db = client['newsnack'] #db 접근
         self.today = str(datetime.datetime.now().date())
-        self.doc_c = self.db['{}_doc'.format(self.today)] # 기사별 키워드 저장하는 doc collection
         self.hot_c = self.db['{}_hot'.format(self.today)] # 핫 토픽 저장하는 hot collection
         print("mongodb connection complete!")
 
@@ -66,6 +65,10 @@ class RunDB(MongoDB):
                 break
 
     def insert_keyword(self, doc): # 해당 문서에 존재하는 단어들 중 keyword 추출
+        date = doc.split('/')[0] #collection 날짜        
+        doc_c = self.db['{}_doc'.format(date)] # 해당 hot topic 문서를 가진 doc collection
+        if (doc_c.find_one({'doc': doc, 'keyword': {'$exists': True}})): return #이미 keyword가 존재하는 doc이면 return
+        
         word_joinv = dict() # 해당 문서에 존재하는 단어-결합벡터 저장
         len_word_in_df = len(self.joinv_words) # df에 있는 전체 단어 수
         df_idx = self.joinv_doc_name.index(doc)
@@ -86,10 +89,8 @@ class RunDB(MongoDB):
             docu = {
                 "keyword": [temp[0][0]]
             }
-            
         filter = {'doc': doc} # 2023-02-10/0 == 2023-02-10/0
-        self.doc_c.update_one(filter, { "$set" : docu })
-        
-        main_mongo = self.doc_c.find_one(filter, {'main': 1, 'doc': 1,  '_id': 0})
+        doc_c.update_one(filter, { "$set" : docu })
+        main_mongo = doc_c.find_one(filter, {'main': 1, 'doc': 1,  '_id': 0})
         main = re.sub('[-=+#/\:^@*※~ㆍ|\(\)\[\]\n]', '', main_mongo['main'])
         self.doc_dict[doc] = main # {'2023-02-20/0' : '본문'} 형식으로 저장해서 summary에게 넘겨줌
