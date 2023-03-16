@@ -12,7 +12,7 @@ import java.util.Map;
 @Component
 public class ReflectUtil { //(collection 이름) 날짜 update 수행
 
-    public static void changeAnnotationValue(String key, Object newValue, Annotation... annotations){
+    public static void changeAnnotationValue(String key, Object date, Annotation... annotations){
         for (Annotation annotation : annotations) {
             Object handler = Proxy.getInvocationHandler(annotation);
             Field f;
@@ -23,6 +23,7 @@ public class ReflectUtil { //(collection 이름) 날짜 update 수행
             }
             f.setAccessible(true);
             Map<String, Object> memberValues;
+            String newValue = (String) date;
             if (annotation.annotationType().equals(TodayHot.class)) {
                 newValue = newValue + "_hot";
             } else if (annotation.annotationType().equals(TodayDoc.class)) {
