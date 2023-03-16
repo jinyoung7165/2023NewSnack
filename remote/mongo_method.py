@@ -1,20 +1,35 @@
+from bson import ObjectId
 from pymongo import MongoClient
 import datetime, os, re
 
 class MongoDB:
-    def __init__(self):
-        client = MongoClient("mongodb+srv://{}:{}@yongyong.834oknp.mongodb.net"
-                            .format(os.environ.get('mongo_username'), os.environ.get('mongo_password')))
-        self.db = client['newsnack'] #db 접근
-        self.today = str(datetime.datetime.now().date())
-        self.hot_c = self.db['{}_hot'.format(self.today)] # 핫 토픽 저장하는 hot collection
-        self.doc_c = self.db['{}_doc'.format(self.today)] # 핫 토픽 저장하는 hot collection
+    def __init__(self, db=None):
+        today = str(datetime.datetime.now().date())
+        if db is None: #crawler에서 호출
+            client = MongoClient("mongodb+srv://{}:{}@yongyong.834oknp.mongodb.net"
+                                .format(os.environ.get('mongo_username'), os.environ.get('mongo_password')))
+            self.db = client['newsnack'] #db 접근
+            self.doc_c = self.db['{}_doc'.format(today)] # 오늘 문서 저장하는 doc collection
+        else: #run.py에서 주입
+            self.db = db
+            self.hot_c = db['{}_hot'.format(today)] # 오늘 핫 토픽 저장하는 hot collection
         print("mongodb connection complete!")
 
+    def get_all_docs(self, date): # 날짜_doc의 모든 문서 [[id, main], [id, main]]
+        doc_c = self.db['{}_doc'.format(date)]
+        date_docs = doc_c.find(None, {'_id': 1, 'main': 1})
+        date_docs_list = []
+        for doc in date_docs:
+            id = str(doc['_id']) #{"_id": ObjectId(id)}
+            main = re.sub('[^A-Z a-z 0-9 가-힣 .]', '', doc['main'])
+            date_docs_list.append([id, main])
+            
+        return date_docs_list
 
-class RunDB(MongoDB):
-    def __init__(self, join_vector, hot_topic):
-        super().__init__()
+class RunDB:
+    def __init__(self, db: MongoDB, join_vector, hot_topic):
+        self.db = db
+        self.hot_c = db.hot_c
         self.join_vector = join_vector
         self.hot_topic = hot_topic
 
@@ -27,16 +42,19 @@ class RunDB(MongoDB):
         self.joinv_doc_name = self.join_vector.index.to_list() # ['2023-01-20/0', '2023-01-20/1']
         self.doc_dict = dict()
 
+        hots = []
         for word in self.joinv_words:
             if word in self.hot_topic_words:
-                self.insert_hottopic_document(word)
+                hots.append(self.hottopic_document(word))
+        # 날짜_hot collection 안에 document 넣는다.
+        self.hot_c.insert_many(hots)
         print("hot topic insertion complete!") # 1초
 
         for doc in self.joinv_doc_name:
             self.insert_each_doc_keyword(doc)
         print("each document keyword insertion complete!") # 29초
 
-    def insert_hottopic_document(self, word): #해당 단어의 결합 벡터가 0.1이상인 문서를 db에 저장
+    def hottopic_document(self, word): #해당 단어의 결합 벡터가 0.1이상인 문서를 db에 저장
         idx = self.hot_topic_words.index(word)
         weight = self.hot_topic[idx][1] / self.total_weight # 전체 단어 빈도 수에 비한 현재 word의 빈도 수 -> wordcloud
 
@@ -49,14 +67,13 @@ class RunDB(MongoDB):
 
         # 해당 단어에 대한 결합벡터 높은 기사 순으로 doc 저장
         temp = sorted(doc_joinv.items(), key=lambda x:x[1], reverse=True)
-        docu = {
+        hot = {
             "word" : word,
             "weight" : weight,
-            "doc" : [t[0] for t in temp] #문서명만 저장
+            "doc" : [t[0].split("/")[1] for t in temp] #_id만 저장
         }
         
-        # 날짜_hot collection 안에 document 넣는다.
-        self.hot_c.insert_one(docu)
+        return hot
 
     def insert_each_doc_keyword(self, doc):
         # 핫 토픽 단어를 가진 document만 "2023-02-02/0"형태로 collection으로 저장 
@@ -65,10 +82,10 @@ class RunDB(MongoDB):
                 self.insert_keyword(doc)
                 break
 
-    def insert_keyword(self, doc): # 해당 문서에 존재하는 단어들 중 keyword 추출
-        date = doc.split('/')[0] #collection 날짜        
-        doc_c = self.db['{}_doc'.format(date)] # 해당 hot topic 문서를 가진 doc collection
-        if (doc_c.find_one({'doc': doc, 'keyword': {'$exists': True}})): return #이미 keyword가 존재하는 doc이면 return
+    def insert_keyword(self, doc): # 해당 문서에 존재하는 단어들 중 keyword 추출        
+        date, id = doc.split('/') #collection 날짜, _id
+        doc_c = self.db.db['{}_doc'.format(date)] # 해당 hot topic 문서를 가진 doc collection
+        if (doc_c.find_one({'_id': ObjectId(id), 'keyword': {'$exists': True }})): return #이미 keyword가 존재하는 doc이면 return
         
         word_joinv = dict() # 해당 문서에 존재하는 단어-결합벡터 저장
         len_word_in_df = len(self.joinv_words) # df에 있는 전체 단어 수
@@ -90,8 +107,9 @@ class RunDB(MongoDB):
             docu = {
                 "keyword": [temp[0][0]]
             }
-        filter = {'doc': doc} # 2023-02-10/0 == 2023-02-10/0
+        filter = {'_id': ObjectId(id)}
         doc_c.update_one(filter, { "$set" : docu })
-        main_mongo = doc_c.find_one(filter, {'main': 1, 'doc': 1,  '_id': 0})
-        main = re.sub('[-=+#/\:^@*※~ㆍ|\(\)\[\]\n]', '', main_mongo['main'])
-        self.doc_dict[doc] = main # {'2023-02-20/0' : '본문'} 형식으로 저장해서 summary에게 넘겨줌
+        
+        main_mongo = doc_c.find_one(filter, {'main': 1, 'doc': 1,  '_id': 1})
+        main = re.sub('[^A-Z a-z 0-9 가-힣 .]', '', main_mongo['main'])
+        self.doc_dict[doc] = main # {'2023-02-20/_id' : '본문'} 형식으로 저장해서 summary에게 넘겨줌

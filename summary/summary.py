@@ -1,22 +1,20 @@
-import requests
-import json
-import os
-
+import requests, json, os
+from bson import ObjectId
 class Summary:
-    def __init__(self, hot_topic, doc_main_arr, db):
+    def __init__(self, db, hot_topic, doc_main_arr):
         self.hot_topic = hot_topic
         self.doc_main_arr = doc_main_arr # 요약할 기사들의 본문(사전)
         self.db = db #newsnack db
 
     def setting(self): 
         for key, value in self.doc_main_arr.items():
-            date = key.split('/')[0] #collection 날짜        
+            date, id = key.split('/') #collection 날짜, _id
             doc_c = self.db['{}_doc'.format(date)] # 해당 hot topic 문서를 가진 doc collection
-            if (doc_c.find_one({'doc': key, 'summary': {'$exists': True}})): continue #이미 summary가 존재하는 doc이면 continue
+            if (doc_c.find_one({"_id": ObjectId(id), 'summary': {'$exists': True}})): continue #이미 summary가 존재하는 doc이면 continue
             docu = {
                 'summary': self.summarize_text(value)
             }
-            doc_c.update_one({'doc': key}, { "$set" : docu })
+            doc_c.update_one({"_id": ObjectId(id)}, { "$set" : docu })
         print("summary update complete!")
 
     # 요약 함수

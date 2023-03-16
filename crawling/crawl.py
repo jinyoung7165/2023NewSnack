@@ -109,9 +109,10 @@ def convert_csv(return_list):
     
 
 def save_in_mongo(mongodb, return_list):
+    docs = []
     for i in range(len(return_list)):
         doc_name = now_date + "/" + str(i)
-        docu = {
+        doc = {
             'doc': doc_name, # 2023-02-10/0
             'link': return_list[i][0], # 링크
             'press': return_list[i][1], # 언론사
@@ -120,7 +121,8 @@ def save_in_mongo(mongodb, return_list):
             'date': return_list[i][4], # 날짜 ('2023-02-21 12:53:01' 형식)
             'main': return_list[i][5], # 본문
         }
-        mongodb.insert_one(docu) #날짜_doc collection에 삽입
+        docs.append(doc)
+    mongodb.insert_many(docs) #날짜_doc collection에 bulk 삽입
 
 def chunks(l, n):
     for i in range(0, len(l), n):
