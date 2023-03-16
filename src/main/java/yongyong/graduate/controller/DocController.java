@@ -17,6 +17,8 @@ import yongyong.graduate.domain.Hot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -25,8 +27,8 @@ import java.util.List;
 public class DocController {
     private final MongoTemplate mongoTemplate;
 
-    @GetMapping("/docs")
-    public String showDocs(Model model, @RequestParam("word") String word, @PageableDefault(page=0, size=5) Pageable pageable) {
+    @GetMapping("/docs/hot")
+    public String showHotDocs(Model model, @RequestParam("word") String word, @PageableDefault(page=0, size=5) Pageable pageable) {
         List<Hot> hotWords = mongoTemplate.find(
                 Query.query(Criteria.where("word").is(word)), Hot.class, TodayUtil.todayHot());
 
@@ -73,18 +75,23 @@ public class DocController {
         return "doc-list";
     }
 
-    @GetMapping("/keyword")
-    public String getKeyword() {
-        // 3일치 doc 가져와서
-        String[] collectionName = {"2023-03-09_doc", "2023-03-10_doc", "2023-03-11_doc"};
-        // docs 담을 리트스
+    @GetMapping("/docs")
+    public String showKeywordDocs(Model model, @RequestParam("word") String word) throws Exception {
+        List<String> docCols = TodayUtil.todayDocs();  // 3일치 doc collection
         List<Doc> docs = new ArrayList<>();
-        // for문 3번 돌아서 docs에 저장
-        for(int i = 0; i < collectionName.length; i++) {
+
+        for(String col : docCols) {
+            log.info("colName {}", col);
            docs.addAll(mongoTemplate.find
-                   (Query.query(Criteria.where("doc").exists(true)), Doc.class, collectionName[i])
+                   (Query.query(Criteria.where("keyword").is(word)), Doc.class, col)
            );
         }
+
+        List<String> docNames = docs.stream().map(doc -> {
+            String docName = doc.getDoc();
+            return docName;
+        }).collect(Collectors.toList());
+        log.info("docs {}", docNames);
         System.out.println("total document's num : " + docs.size());
         return "keyword-list"; // 그냥 임의로 만들어 놓은 것.
     }

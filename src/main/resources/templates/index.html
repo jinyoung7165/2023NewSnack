@@ -98,7 +98,7 @@ layout:decorate="~{fragments/layout}">
                   .text(function(d) { return d.text; })
                   .on("click", function(event, d) {
                     if (d.doc) {
-                        window.location.href = "/docs?word=" + d.text;
+                        window.location.href = "/docs/hot?word=" + d.text;
                     }
                 });
         }
