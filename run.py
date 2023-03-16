@@ -27,9 +27,9 @@ def main():
 
     delta = datetime.timedelta(days=1) # 1일 후
     end_date = datetime.datetime.now()
-    today = end_date - datetime.timedelta(days=1) # 1일 전 -> 2로 바꿔야 함!!!!!!!!!!!!!!!!!!!!
+    today = end_date - datetime.timedelta(days=2) #이틀 전부터 실행
     
-    for _ in range(2): #3으로 바꿔야 함!!!!!!!!!!!!!!!!!!!!!!!!
+    for _ in range(3):
         today_name = today.strftime("%Y-%m-%d")
         now_t = time.time()
         sentence = Sentence(docToText, tokenizer, word2vec, today_name, "naver_news.csv")

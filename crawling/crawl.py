@@ -129,6 +129,7 @@ def chunks(l, n):
 def crawl():
     s3 = S3() #s3 connection 1번
     mongodb = MongoDB().doc_c #mongo doc collection
+    
     print(today, "오늘의 crawl 시작")
     return_list = Manager().list()
 
@@ -156,7 +157,8 @@ def crawl():
         
     convert_csv(list(return_list))
     save_in_mongo(mongodb, list(return_list))
-
+    mongodb.create_index('keyword')
+    
     s3.s3_upload_file(now_date, "naver_news.csv")
     
     return today

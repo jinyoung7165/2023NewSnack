@@ -8,6 +8,7 @@ class MongoDB:
         self.db = client['newsnack'] #db 접근
         self.today = str(datetime.datetime.now().date())
         self.hot_c = self.db['{}_hot'.format(self.today)] # 핫 토픽 저장하는 hot collection
+        self.doc_c = self.db['{}_doc'.format(self.today)] # 핫 토픽 저장하는 hot collection
         print("mongodb connection complete!")
 
 
