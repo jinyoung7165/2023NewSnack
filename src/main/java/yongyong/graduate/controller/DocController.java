@@ -72,4 +72,20 @@ public class DocController {
         model.addAttribute("totalPages", totalPages);
         return "doc-list";
     }
+
+    @GetMapping("/keyword")
+    public String getKeyword() {
+        // 3일치 doc 가져와서
+        String[] collectionName = {"2023-03-09_doc", "2023-03-10_doc", "2023-03-11_doc"};
+        // docs 담을 리트스
+        List<Doc> docs = new ArrayList<>();
+        // for문 3번 돌아서 docs에 저장
+        for(int i = 0; i < collectionName.length; i++) {
+           docs.addAll(mongoTemplate.find
+                   (Query.query(Criteria.where("doc").exists(true)), Doc.class, collectionName[i])
+           );
+        }
+        System.out.println("total document's num : " + docs.size());
+        return "keyword-list"; // 그냥 임의로 만들어 놓은 것.
+    }
 }
