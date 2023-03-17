@@ -87,6 +87,7 @@ public class DocController {
            );
         }
 
+        // 콘솔에 출력용 코드
         List<String> docNames = docs.stream().map(doc -> {
             String docName = doc.getDoc();
             return docName;
@@ -94,6 +95,6 @@ public class DocController {
         log.info("docs {}", docNames);
         System.out.println("total document's num : " + docs.size());
         model.addAttribute("docs", docs);
-        return "keyword-list"; // 그냥 임의로 만들어 놓은 것.
+        return "keyword-list";
     }
 }
