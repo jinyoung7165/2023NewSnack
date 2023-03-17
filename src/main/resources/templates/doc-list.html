@@ -43,7 +43,7 @@
       <div class="article-details">
         <span class="press" th:text="${doc.press}"></span>
         <span class="date" th:text="${doc.date}"></span>
-        <div class="keyword-content">
+        <div class="keyword">
           <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}">&nbsp;</span>
         </div>
       </div>
@@ -127,7 +127,7 @@
     margin-right: 0;
   }
 
-  .keyword-content {
+  .keyword {
     display: flex;
 <!--    justify-content: space-between;-->
     font-size: 14px;
@@ -226,6 +226,7 @@
     const popups = document.getElementsByClassName('popup');
     const dimLayer = document.getElementById('dim-layer');
     const closeButtons = document.getElementsByClassName('close-button');
+    const keywords = document.getElementsByClassName('keyword');
 
 <!--    function showPopup(element) {-->
 <!--        const index = element.getAttribute('data-doc-index');-->
@@ -244,6 +245,12 @@
       closeButtons[i].addEventListener('click', function() {
         dimLayer.style.display = 'none';
         popups[i].style.display = 'none';
+      });
+    }
+
+    for (let i = 0; i < keywords.length; i++) {
+      keywords[i].addEventListener('click', function(e) {
+        window.location.href = "/docs?word=" + e.target.textContent;
       });
     }
 </script>

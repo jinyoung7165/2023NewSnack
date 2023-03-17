@@ -1,10 +1,199 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>Keyword Document List</title>
 </head>
-<body>
-<h2>keyword 작업할 화면 입니다.</h2>
+<body layout:fragment="content">
+<h1>키워드 <span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #e65555;"></span> 연관 뉴스
+    <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span> 건입니다.
+</h1>
+<div th:each="doc , i : ${docs}">
+    <div class="article">
+        <div class="image-container" th:if="${doc.image != null}">
+            <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
+        </div>
+        <div class="article-content">
+            <h2 class="title" th:text="${doc.title}" th:data-doc-index="${i.index}"></h2>
+            <div class="summary">
+                <span th:if="${not #strings.isEmpty(doc.summary)}"
+                      th:text="${#strings.length(doc.summary) &lt;= 10 ? doc.summary : doc.summary.substring(0, 10) + '...'}"></span>
+                <span th:if="${#strings.isEmpty(doc.summary)}"
+                      th:text="${#strings.length(doc.main) &lt;= 100 ? doc.main : doc.main.substring(0, 100) + '...'}"></span>
+            </div>
+            <div id="dim-layer"></div>
+            <div class="popup">
+                <h2 th:text="${doc.title}"></h2>
+                <span class="date" th:text="${doc.date}"></span>
+                <a class="link" th:href="${doc.link}" target="_blank">원문보기</a>
+                <div class="keyword-content">
+                    <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}"></span>
+                </div>
+
+                <div class="popup-image-container" th:if="${doc.image != null}">
+                    <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
+                </div>
+                <div>
+                    <span class="summary" th:utext="${doc.summary.replace('.','.&lt;br/&gt;')}"></span>
+                </div>
+                <button class="close-button">X</button>
+            </div>
+
+            <div class="article-details">
+                <span class="press" th:text="${doc.press}"></span>
+                <span class="date" th:text="${doc.date}"></span>
+                <div class="keyword">
+                    <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}">&nbsp;</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+  :root {
+    --primary-color: #6699FF;
+  }
+
+  body {
+    font-family: 'Quicksand';
+  }
+
+   h1 {
+      font-family: 'Noto Sans KR';
+      font-weight: 400;
+   }
+
+  .article {
+    display: flex;
+    align-items: center;
+    margin-bottom: 45px;
+    padding: 15px;
+    border: 2px solid #e6e6e6;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .article-content {
+    flex-grow: 1;
+    margin: 20px;
+  }
+
+  .article-content h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #414c62;
+  }
+
+  .summary {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    max-height: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+  }
+
+  .popup-btn {
+    padding: 4px;
+    border: 1px solid #ccc0;
+    border-radius: 5px;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  .article-details {
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+    margin: 2px;
+  }
+
+  .article-details span {
+    margin-right: 10px;
+  }
+
+  .article-details span:last-child {
+    margin-right: 0;
+  }
+
+  .keyword {
+    display: flex;
+    font-size: 14px;
+    color: #6699FF;
+  }
+
+  #dim-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    display: none;
+  }
+
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px;
+    z-index: 2;
+    display: none;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+  }
+
+  .popup img {
+    max-width: 100%;
+    display: block;
+    margin: 35px auto;
+  }
+
+  .popup h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #414c62;
+  }
+
+  .popup .link {
+    font-size: 14px;
+    color: #333;
+    text-decoration: none;
+  }
+
+  .popup .keyword-content {
+<!--    display: flex;-->
+<!--    justify-content: space-between;-->
+    font-size: 14px;
+    color: #6699FF;
+  }
+
+
+  .popup .keyword-content span{
+    margin-right: 10px;
+  }
+
+  .popup .summary {
+    font-size: 16px;
+    color: #333;
+    white-space: pre-line;
+  }
+
+  .close-button {
+    margin-top: 20px;
+    border: 4px solid #ccc0;
+  }
+
+}</style>
 </body>
 </html>

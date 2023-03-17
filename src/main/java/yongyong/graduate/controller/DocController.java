@@ -93,6 +93,7 @@ public class DocController {
         }).collect(Collectors.toList());
         log.info("docs {}", docNames);
         System.out.println("total document's num : " + docs.size());
+        model.addAttribute("docs", docs);
         return "keyword-list"; // 그냥 임의로 만들어 놓은 것.
     }
 }
