@@ -10,7 +10,6 @@ import re
 from dotenv import load_dotenv
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from remote.s3_method import S3
 from remote.mongo_method import MongoDB
 
 # load .env
@@ -111,9 +110,9 @@ def convert_csv(return_list):
 def save_in_mongo(mongodb, return_list):
     docs = []
     for i in range(len(return_list)):
-        doc_name = now_date + "/" + str(i)
+        # doc_name = now_date + "/" + str(i)
         doc = {
-            'doc': doc_name, # 2023-02-10/0
+            # 'doc': doc_name, # 2023-02-10/0
             'link': return_list[i][0], # 링크
             'press': return_list[i][1], # 언론사
             'image': return_list[i][2], # 이미지
@@ -129,7 +128,6 @@ def chunks(l, n):
         yield l[i:i + n]
             
 def crawl():
-    s3 = S3() #s3 connection 1번
     mongodb = MongoDB().doc_c #mongo doc collection
     
     print(today, "오늘의 crawl 시작")
@@ -160,8 +158,6 @@ def crawl():
     convert_csv(list(return_list))
     save_in_mongo(mongodb, list(return_list))
     mongodb.create_index('keyword')
-    
-    s3.s3_upload_file(now_date, "naver_news.csv")
     
     return today
     
