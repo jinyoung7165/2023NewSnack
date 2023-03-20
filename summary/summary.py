@@ -9,7 +9,7 @@ class Summary:
     def setting(self): 
         for key, value in self.doc_main_arr.items():
             date, id = key.split('/') #collection 날짜, _id
-            doc_c = self.db['{}_doc'.format(date)] # 해당 hot topic 문서를 가진 doc collection
+            doc_c = self.db[date] # 해당 hot topic 문서를 가진 doc collection
             if (doc_c.find_one({"_id": ObjectId(id), 'summary': {'$exists': True}})): continue #이미 summary가 존재하는 doc이면 continue
             docu = {
                 'summary': self.summarize_text(value)

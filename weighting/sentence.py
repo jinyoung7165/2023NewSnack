@@ -40,7 +40,7 @@ class Sentence(ArrUtil):
             delete_count = int(self.line_count*0.14) if self.line_count*0.14 > 1 else 1 #제거할 줄 수
             delete_idx_arr = sum_df.sort_values(by=self.line_count, ascending=True).head(delete_count).index #제거할 줄의 idx
             for i in range(self.line_count):
-                key = "{}/{}".format(self.date, idx) #collection date, _idx
+                key = "{}_doc/{}".format(self.date, idx) #collection date, _idx
                 if i not in delete_idx_arr:
                     self.docs_word_arr[key].extend(self.line_word[i])
                     

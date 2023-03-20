@@ -1,4 +1,4 @@
-from bson import ObjectId
+from bson import ObjectId, DBRef
 from pymongo import MongoClient
 import datetime, os, re
 
@@ -39,7 +39,7 @@ class RunDB:
 
         self.inverted_joinv = self.join_vector.T # column, index 바꾼 df
         self.joinv_words = self.inverted_joinv.index.to_list() # df에 있는 단어들
-        self.joinv_doc_name = self.join_vector.index.to_list() # ['2023-01-20/0', '2023-01-20/1']
+        self.joinv_doc_name = self.join_vector.index.to_list() # ['2023-01-20_doc/0', '2023-01-20_doc/1']
         self.doc_dict = dict()
 
         hots = []
@@ -58,7 +58,7 @@ class RunDB:
         idx = self.hot_topic_words.index(word)
         weight = self.hot_topic[idx][1] / self.total_weight # 전체 단어 빈도 수에 비한 현재 word의 빈도 수 -> wordcloud
 
-        doc_joinv = dict() # "2022-01-20/1": 0.5 문서명-결합벡터 저장
+        doc_joinv = dict() # "2022-01-20_doc/1": 0.5 문서명-결합벡터 저장
         doc_len = len(self.joinv_doc_name) #전체 문서 수
         df_idx = self.joinv_words.index(word) #전체 df에서 현재 단어의 위치
         for i in range(doc_len):
@@ -67,24 +67,25 @@ class RunDB:
 
         # 해당 단어에 대한 결합벡터 높은 기사 순으로 doc 저장
         temp = sorted(doc_joinv.items(), key=lambda x:x[1], reverse=True)
+        print(t[0].split("/") for t in temp)
         hot = {
             "word" : word,
             "weight" : weight,
-            "doc" : [t[0].split("/")[1] for t in temp] #_id만 저장
+            "doc" : [DBRef(t[0].split("/")[0], ObjectId(t[0].split("/")[1])) for t in temp] # DBRef(날짜_doc, _id)
         }
         
         return hot
 
     def insert_each_doc_keyword(self, doc):
-        # 핫 토픽 단어를 가진 document만 "2023-02-02/0"형태로 collection으로 저장 
+        # 핫 토픽 단어를 가진 document만 "2023-02-02_doc/0"형태로 collection으로 저장 
         for i in range(len(self.hot_topic_words)):
             if self.join_vector.loc[doc, self.hot_topic_words[i]] > 0.0:
                 self.insert_keyword(doc)
                 break
 
     def insert_keyword(self, doc): # 해당 문서에 존재하는 단어들 중 keyword 추출        
-        date, id = doc.split('/') #collection 날짜, _id
-        doc_c = self.db.db['{}_doc'.format(date)] # 해당 hot topic 문서를 가진 doc collection
+        date, id = doc.split('/') #collection, _id
+        doc_c = self.db.db[date] # 해당 hot topic 문서를 가진 doc collection
         if (doc_c.find_one({'_id': ObjectId(id), 'keyword': {'$exists': True }})): return #이미 keyword가 존재하는 doc이면 return
         
         word_joinv = dict() # 해당 문서에 존재하는 단어-결합벡터 저장
