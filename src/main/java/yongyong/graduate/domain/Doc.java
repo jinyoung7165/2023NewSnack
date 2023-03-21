@@ -2,6 +2,7 @@ package yongyong.graduate.domain;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Field;
 import yongyong.graduate.common.annotation.TodayDoc;
 
@@ -23,6 +24,7 @@ public class Doc {
     private String image;
     private String summary;
     // keyword는 dictionary 타입
+    @Indexed
     private List<String> keyword;
     private String date;
     private String link;

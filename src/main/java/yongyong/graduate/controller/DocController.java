@@ -17,9 +17,6 @@ import yongyong.graduate.domain.Hot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 @Slf4j
 @Controller
@@ -29,31 +26,16 @@ public class DocController {
 
     @GetMapping("/docs/hot")
     public String showHotDocs(Model model, @RequestParam("word") String word, @PageableDefault(page=0, size=5) Pageable pageable) {
-        List<Hot> hotWords = mongoTemplate.find(
-                Query.query(Criteria.where("word").is(word)), Hot.class, TodayUtil.todayHot());
+        Query query = new Query();
+        query.fields().include("doc", "weight"); //weight 왜 필요한 걸까
+        query.addCriteria(Criteria.where("word").is(word));
+        Hot hot = mongoTemplate.find(
+                query, Hot.class, TodayUtil.todayHot()).get(0);
 
-        List<String> docNames = new ArrayList<>();
-        for (Hot hot : hotWords) {
-            for (String doc : hot.getDoc()) docNames.add(doc);
-        }
-
-        List<Doc> docs = new ArrayList<>();
-        for (String docName : docNames) {
-            docs.addAll(mongoTemplate.find(
-                    Query.query(Criteria.where("doc").is(docName)), Doc.class, TodayUtil.todayDoc())
-            );
-        }
+        List<Doc> docs = hot.getDoc();
 
         // 각 핫토픽의 기사 개수
-        long totalDocs = mongoTemplate.count(Query.query(Criteria.where("doc").in(docNames)), Doc.class, TodayUtil.todayDoc());
-//        System.out.println(totalDocs);
-
-        // pageable 객체 생성
-        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
-
-        // paging 처리된 상태로 doc 가져옴
-       List<Doc> docList = mongoTemplate.find(Query.query(Criteria.where("doc").in(docNames)).with(pageable), Doc.class, TodayUtil.todayDoc());
-
+        long totalDocs = docs.size();
         // 전체 페이지 개수
         int totalPages = (int) Math.ceil((double) totalDocs / pageable.getPageSize());
 
@@ -80,19 +62,14 @@ public class DocController {
         List<String> docCols = TodayUtil.todayDocs();  // 3일치 doc collection
         List<Doc> docs = new ArrayList<>();
 
+        Query query = new Query();
+        query.fields().exclude( "_id", "main");
+        query.addCriteria(Criteria.where("keyword").is(word));
+
         for(String col : docCols) {
-            log.info("colName {}", col);
-           docs.addAll(mongoTemplate.find
-                   (Query.query(Criteria.where("keyword").is(word)), Doc.class, col)
-           );
+            docs.addAll(mongoTemplate.find(query, Doc.class, col));
         }
 
-        // 콘솔에 출력용 코드
-        List<String> docNames = docs.stream().map(doc -> {
-            String docName = doc.getDoc();
-            return docName;
-        }).collect(Collectors.toList());
-        log.info("docs {}", docNames);
         System.out.println("total document's num : " + docs.size());
         model.addAttribute("docs", docs);
         return "keyword-list";

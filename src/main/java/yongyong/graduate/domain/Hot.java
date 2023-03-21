@@ -2,6 +2,7 @@ package yongyong.graduate.domain;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Field;
 import yongyong.graduate.common.annotation.TodayHot;
 
@@ -21,6 +22,7 @@ public class Hot {
     @Field("weight")
     private double weight;
 
+    @DBRef
     @Field("doc")
-    private List<String> doc;
+    private List<Doc> doc;
 }
