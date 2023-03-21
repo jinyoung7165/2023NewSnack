@@ -111,5 +111,5 @@ class RunDB:
         doc_c.update_one(filter, { "$set" : docu })
         
         main_mongo = doc_c.find_one(filter, {'main': 1, 'doc': 1,  '_id': 1})
-        main = re.sub('[^A-Z a-z 0-9 가-힣 .]', '', main_mongo['main'])
+        main = re.sub('[^A-Z a-z 0-9 가-힣 · % .]', '', main_mongo['main'])
         self.doc_dict[doc] = main # {'2023-02-20/_id' : '본문'} 형식으로 저장해서 summary에게 넘겨줌
