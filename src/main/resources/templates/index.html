@@ -24,9 +24,7 @@ layout:decorate="~{fragments/layout}">
             width: 80%;
             height: 80%;
             margin: auto;
-            font-size: 30px;
-            font-weight: 500px;
-            font-family: Noto Sans KR;
+            font: bold 30px Noto Sans KR;
             padding-top: 1%;
         }
 
@@ -56,7 +54,7 @@ layout:decorate="~{fragments/layout}">
 </head>
 <body layout:fragment="content">
 <!--<div th:replace="fragment/header :: header"></div>-->
-<div id="keyword">오늘의 경제 키워드</div>
+<div id="keyword">오늘의 <span style="color:#007aff;">경제</span> 키워드</div>
 <div id="keyword-meta">
     <div id="doc-num">
         <img src="img/glass.png" alt="glass" style="width: 15px;">
