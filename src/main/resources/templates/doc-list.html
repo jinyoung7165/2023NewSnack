@@ -13,7 +13,7 @@
 <h1><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #e65555;"></span> 뉴스 검색 결과
   <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span> 건입니다.
   </h1>
-<div th:each="doc, i : ${docs}" th:if="${i.index >= currentPage * pageSize and i.index < (currentPage + 1) * pageSize}">
+<div th:each="doc, i : ${docs}">
   <div class="article">
     <div class="image-container" th:if="${doc.image != null}">
       <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
@@ -50,12 +50,12 @@
     </div>
   </div>
 </div>
-<div class="page">
-  <th:block th:each="page:${#numbers.sequence(startPage,endPage)}">
-    <a class="page-link" th:if="${page != nowPage}" th:href="@{/docs(word=${param.word}, page=${page-1})}" th:text ="${page}"></a>
-    <strong th:if="${page==nowPage}" th:text ="${page}" style="color:#0F58FF"></strong>
-  </th:block>
-</div>
+<!--<div class="page">-->
+<!--  <th:block th:each="page:${#numbers.sequence(startPage,endPage)}">-->
+<!--    <a class="page-link" th:if="${page != nowPage}" th:href="@{/docs(word=${param.word}, page=${page-1})}" th:text ="${page}"></a>-->
+<!--    <strong th:if="${page==nowPage}" th:text ="${page}" style="color:#0F58FF"></strong>-->
+<!--  </th:block>-->
+<!--</div>-->
 
 <!-- style -->
 <style>
