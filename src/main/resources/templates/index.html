@@ -17,7 +17,6 @@ layout:decorate="~{fragments/layout}">
             display: block;
             border: 1px solid #d9e1e5;
             background-color: #f5f8fc;
-            font-weight: 400;
         }
 
         #keyword {
@@ -106,6 +105,7 @@ layout:decorate="~{fragments/layout}">
                   .attr("id", function(d) { return d.text; }) // set the id property to the text value
                   .style("font-size", function(d) { return d.size + "px"; })
                   .style("font-family", "Noto Sans KR")
+                  .style("font-weight", 500)
                   .style("fill", function(d, i) { return colorScale(i); })
                   .attr("text-anchor", "middle")
                   .attr("transform", function(d) {
