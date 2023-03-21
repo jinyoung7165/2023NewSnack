@@ -71,6 +71,7 @@ def get_news_content(idx, return_list):
         time.sleep(1.5)
        
         # html태그제거 및 텍스트 다듬기
+        br = '<br/>'
         pattern1 = '<[^>]*>'
         pattern2 = """[\n\n\n\n\n// flash 오류를 우회하기 위한 함수 추가\nfunction _flash_removeCallback() {}"""
         pattern3 = '[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+[a-zA-Z0-9-.]+' #email 제거
@@ -97,6 +98,7 @@ def get_news_content(idx, return_list):
         if len(text_area) == 0: text_area = news_html.select("#articeBody")
         content = ''.join(str(text_area))
         item_title = re.sub(pattern=pattern1, repl='', string=str(item_title))
+        content = re.sub(pattern=br, repl='. ', string=content)
         content = re.sub(pattern=pattern1, repl='', string=content)
         content = content.replace(pattern2, '')
         
@@ -111,6 +113,8 @@ def get_news_content(idx, return_list):
         content = re.sub(pattern=pattern6, repl='', string=content)
         content = re.sub(pattern=pattern7, repl='', string=content)
         content = re.sub(pattern=pattern8, repl='', string=content)
+        
+        content = '.'.join(c for c in content.split('. ') if len(c)>1)
         return_list[idx] =  return_list[idx]+[item_title, item_date, content]
         
     except Exception as e:
