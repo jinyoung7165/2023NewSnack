@@ -1,6 +1,6 @@
 import datetime, time, collections, sys, os, requests
 from dotenv import load_dotenv
-from gensim.models import Word2Vec
+from gensim.models import FastText
 from pymongo import MongoClient
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -19,7 +19,7 @@ def main():
     mongodb = MongoDB(db)
     
     tokenizer = Tokenizer()
-    word2vec = Word2Vec.load('model_bulk')
+    fastvec = FastText.load('model_fast')
     
     doc_word_dict = collections.defaultdict(list)
 
@@ -30,14 +30,14 @@ def main():
     for _ in range(3):
         today_name = today.strftime("%Y-%m-%d")
         now_t = time.time()
-        sentence = Sentence(mongodb, tokenizer, word2vec, today_name)
+        sentence = Sentence(mongodb, tokenizer, fastvec, today_name)
         sentence.doc_process()
         doc_word_dict.update(sentence.docs_word_arr) #date/_idx : ['단어1','단어2']
         print(time.time()- now_t) # 하루 뉴스 490개에 210-299초
         today += delta # 하루씩 증가
 
     now_t = time.time()
-    doc_tfidf = DocTfidf(word2vec, doc_word_dict)
+    doc_tfidf = DocTfidf(fastvec, doc_word_dict)
     join_vector = doc_tfidf.final_word_process()
     print("joinvector", time.time()-now_t) #3일치 749초
     now_t = time.time()

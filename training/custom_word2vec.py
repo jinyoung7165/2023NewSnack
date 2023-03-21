@@ -15,8 +15,9 @@ def preprocess(doc, whole_word, tokenizer: Tokenizer):
 def custom_train(docToText: DocToText, tokenizer: Tokenizer):
     whole_word = Manager().list()
     delta = datetime.timedelta(days=1) # 1일 후
-    end_date = datetime.datetime.now() #2023-03-21
-    now_date = end_date - datetime.timedelta(days=25) # 56일 전.2023-01-17
+    end_date = datetime.datetime.now()- datetime.timedelta(days=18) #2023-03-03
+    now_date = end_date - datetime.timedelta(days=45) # 45일 전.2023-01-17
+    print(end_date, now_date)
     while True:
         docToText.csv_to_text("{}".format(now_date.date()), "naver_news.csv")
         docs = list(docToText.main) # ["첫번째 문서 두번째 문장", "두번째 문서 두번째 문장",]

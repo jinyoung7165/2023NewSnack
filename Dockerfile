@@ -45,7 +45,9 @@ COPY weighting/sentence.py ./weighting/
 COPY weighting/arr_util.py ./weighting/
 COPY weighting/doc_tfidf.py ./weighting/
 
-COPY model_bulk ./
+COPY model_fast ./
+COPY model_fast.wv.vectors_ngrams.npy ./
+COPY summary.txt ./
 COPY stopword.txt ./
 COPY run.py ./
 
