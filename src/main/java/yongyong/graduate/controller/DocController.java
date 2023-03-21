@@ -25,7 +25,7 @@ public class DocController {
     private final MongoTemplate mongoTemplate;
 
     @GetMapping("/docs/hot")
-    public String showHotDocs(Model model, @RequestParam("word") String word) {
+    public String showHotDocs(Model model, @RequestParam("word") String word) throws Exception {
         Query query = new Query();
         query.fields().include("doc", "weight"); //weight 왜 필요한 걸까
         query.addCriteria(Criteria.where("word").is(word));
@@ -35,6 +35,7 @@ public class DocController {
         List<Doc> docs = hot.getDoc();
 
         model.addAttribute("docs", docs);
+        model.addAttribute("date", TodayUtil.todays());
         return "doc-list";
     }
 
@@ -53,6 +54,7 @@ public class DocController {
 
         System.out.println("total document's num : " + docs.size());
         model.addAttribute("docs", docs);
+        model.addAttribute("date", TodayUtil.todays());
         return "keyword-list";
     }
 }

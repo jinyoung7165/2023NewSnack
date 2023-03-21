@@ -9,18 +9,24 @@
     <title>Keyword Document List</title>
 </head>
 <body layout:fragment="content">
-<h1>키워드 <span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #e65555;"></span> 연관 뉴스
-    <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span> 건입니다.
-</h1>
+<div style="display: flex;">
+    <h1><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #007aff;"></span> 뉴스 검색 결과
+        <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span> 건입니다.
+    </h1>
+    <span style="margin-top:3%; margin-left: 60%;">
+     <img src="/img/clock.png" alt="clock img" style="width: 15px;">
+    <span th:text="${date[2]}"></span> ~ <span th:text="${date[0]}"></span>
+  </span>
+</div>
 <div th:each="doc , i : ${docs}">
     <div class="article">
         <div class="image-container" th:if="${doc.image != null}">
             <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
         </div>
         <div class="article-content">
-            <h2 class="title" th:text="${doc.title}" th:data-doc-index="${i.index}"></h2>
-            <div class="summary">
-                <span th:text="${#strings.length(doc.summary) &lt;= 100 ? doc.summary : doc.summary.substring(0, 100) + '...'}"></span>
+            <div class="click" th:data-doc-index="${i.index}" style="cursor:pointer;">
+                <h2 class="title" th:text="${doc.title}"></h2>
+                <div class="summary" th:text="${#strings.length(doc.summary) &lt;= 100 ? doc.summary : doc.summary.substring(0, 100) + '...'}"></div>
             </div>
             <div id="dim-layer"></div>
             <div class="popup">
@@ -35,7 +41,7 @@
                     <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
                 </div>
                 <div>
-                    <span class="summary" th:utext="${doc.summary.replace('.','.&lt;br/&gt;')}"></span>
+                    <span class="summary" th:utext="${doc.summary.replace('\\.', '.<br/>')}"></span>
                 </div>
                 <button class="close-button">X</button>
             </div>
@@ -44,7 +50,7 @@
                 <span class="press" th:text="${doc.press}"></span>
                 <span class="date" th:text="${doc.date}"></span>
                 <div class="main-keyword">
-                    <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}">&nbsp;</span>
+                    <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}" style="cursor:pointer;">&nbsp;</span>
                 </div>
             </div>
         </div>
@@ -63,7 +69,7 @@
 
    h1 {
       font-family: 'Noto Sans KR';
-      font-weight: 400;
+      font-weight: 700;
    }
 
   .article {
@@ -195,14 +201,14 @@
 }
 </style>
 <script>
-    const titles = document.getElementsByClassName('title');
+    const clicks = document.getElementsByClassName('click');
     const popups = document.getElementsByClassName('popup');
     const dimLayer = document.getElementById('dim-layer');
     const closeButtons = document.getElementsByClassName('close-button');
     const keywords = document.getElementsByClassName('main-keyword');
 
-    for (let i = 0; i < titles.length; i++) {
-      titles[i].addEventListener('click', function() {
+    for (let i = 0; i < clicks.length; i++) {
+      clicks[i].addEventListener('click', function() {
         const index = this.getAttribute('data-doc-index');
         dimLayer.style.display = 'block';
         popups[index].style.display = 'block';
