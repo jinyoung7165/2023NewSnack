@@ -32,7 +32,7 @@ class Summary:
                     break
             if flag: newlines.append(line)
                     
-        return newlines
+        return '. '.join(newlines)
 
     # 요약 함수
     def summarize_text(self, text):
@@ -41,7 +41,6 @@ class Summary:
 
         # 2000개 단어 기준으로 chunk 쪼개기
         text_chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-
         headers = {
             "Content-Type": "application/json; utf-8",
             "X-NCP-APIGW-API-KEY-ID": client_id,
@@ -52,7 +51,6 @@ class Summary:
         
         # chunk 단위로 요약 api와 연동
         for chunk in text_chunks:
-
             data = {
                 "document": {
                     "content": chunk,
