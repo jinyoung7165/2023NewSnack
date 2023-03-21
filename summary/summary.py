@@ -1,10 +1,13 @@
 import requests, json, os
 from bson import ObjectId
+from preprocess.tokenizer import SummaryStopword
+
 class Summary:
     def __init__(self, db, hot_topic, doc_main_arr):
         self.hot_topic = hot_topic
         self.doc_main_arr = doc_main_arr # 요약할 기사들의 본문(사전)
         self.db = db #newsnack db
+        self.stopword = SummaryStopword().stopwords
 
     def setting(self): 
         for key, value in self.doc_main_arr.items():
@@ -12,10 +15,24 @@ class Summary:
             doc_c = self.db[date] # 해당 hot topic 문서를 가진 doc collection
             if (doc_c.find_one({"_id": ObjectId(id), 'summary': {'$exists': True}})): continue #이미 summary가 존재하는 doc이면 continue
             docu = {
-                'summary': self.summarize_text(value)
+                'summary': self.summarize_text(self.preprocess(value))
             }
             doc_c.update_one({"_id": ObjectId(id)}, { "$set" : docu })
         print("summary update complete!")
+
+    # 해당 줄에 stopword 포함 시 제거
+    def preprocess(self, text):
+        lines = text.split('.')
+        newlines = []
+        for line in lines:
+            flag = True
+            for word in line.split():
+                if word in self.stopword:
+                    flag = False
+                    break
+            if flag: newlines.append(line)
+                    
+        return newlines
 
     # 요약 함수
     def summarize_text(self, text):

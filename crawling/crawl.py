@@ -94,6 +94,7 @@ def get_news_content(idx, return_list):
 
         item_title = re.sub(pattern=pattern1, repl='', string=str(item_title))
         content = re.sub(pattern=pattern1, repl='', string=content)
+        content = re.sub(pattern="(?:&[gl]t;)+", repl='', string=content)
         content = content.replace(pattern2, '')
 
         return_list[idx] =  return_list[idx]+[item_title, item_date, content]

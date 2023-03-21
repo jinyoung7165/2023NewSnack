@@ -67,7 +67,6 @@ class RunDB:
 
         # 해당 단어에 대한 결합벡터 높은 기사 순으로 doc 저장
         temp = sorted(doc_joinv.items(), key=lambda x:x[1], reverse=True)
-        print(t[0].split("/") for t in temp)
         hot = {
             "word" : word,
             "weight" : weight,
