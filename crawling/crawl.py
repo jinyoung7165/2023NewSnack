@@ -73,7 +73,12 @@ def get_news_content(idx, return_list):
         # html태그제거 및 텍스트 다듬기
         pattern1 = '<[^>]*>'
         pattern2 = """[\n\n\n\n\n// flash 오류를 우회하기 위한 함수 추가\nfunction _flash_removeCallback() {}"""
-        
+        pattern3 = '[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+[a-zA-Z0-9-.]+' #email 제거
+        pattern4 = r'[\n]' #엔터 제거
+        pattern5 = r'\([^)]*\)' #괄호와 괄호 안 글자 제거
+        pattern6 = r'\[[^]]*\]' #괄호와 괄호 안 글자 제거
+        pattern7 = r'\【[^】]*\】'
+        pattern8 = r'\◀[^▶]*\▶'
         # 뉴스 제목 가져오기
         item_title = news_html.select_one("#ct > div.media_end_head.go_trans > div.media_end_head_title > h2")
         if item_title == None:
@@ -91,12 +96,21 @@ def get_news_content(idx, return_list):
         text_area = news_html.select("div#dic_area")
         if len(text_area) == 0: text_area = news_html.select("#articeBody")
         content = ''.join(str(text_area))
-
         item_title = re.sub(pattern=pattern1, repl='', string=str(item_title))
         content = re.sub(pattern=pattern1, repl='', string=content)
-        content = re.sub(pattern="(?:&[gl]t;)+", repl='', string=content)
         content = content.replace(pattern2, '')
-
+        
+        content = content.replace('[','', 1)
+        content = content.rstrip(']')
+        
+        content = re.sub(pattern=pattern3, repl='', string=content)
+        content = re.sub(pattern="(?:&[gl]t;)+", repl='', string=content)
+        content = re.sub(pattern="(?:&amp;)+", repl='', string=content)
+        content = re.sub(pattern=pattern4, repl='', string=content)
+        content = re.sub(pattern=pattern5, repl='', string=content)
+        content = re.sub(pattern=pattern6, repl='', string=content)
+        content = re.sub(pattern=pattern7, repl='', string=content)
+        content = re.sub(pattern=pattern8, repl='', string=content)
         return_list[idx] =  return_list[idx]+[item_title, item_date, content]
         
     except Exception as e:
@@ -111,9 +125,9 @@ def convert_csv(return_list):
 def save_in_mongo(mongodb, return_list):
     docs = []
     for i in range(len(return_list)):
-        # doc_name = now_date + "/" + str(i)
+        doc_name = now_date + "/" + str(i)
         doc = {
-            # 'doc': doc_name, # 2023-02-10/0
+            'doc': doc_name, # 2023-02-10/0
             'link': return_list[i][0], # 링크
             'press': return_list[i][1], # 언론사
             'image': return_list[i][2], # 이미지
