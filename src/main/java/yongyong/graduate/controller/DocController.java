@@ -25,7 +25,7 @@ public class DocController {
     private final MongoTemplate mongoTemplate;
 
     @GetMapping("/docs/hot")
-    public String showHotDocs(Model model, @RequestParam("word") String word, @PageableDefault(page=0, size=5) Pageable pageable) {
+    public String showHotDocs(Model model, @RequestParam("word") String word) {
         Query query = new Query();
         query.fields().include("doc", "weight"); //weight 왜 필요한 걸까
         query.addCriteria(Criteria.where("word").is(word));
@@ -34,26 +34,7 @@ public class DocController {
 
         List<Doc> docs = hot.getDoc();
 
-        // 각 핫토픽의 기사 개수
-        long totalDocs = docs.size();
-        // 전체 페이지 개수
-        int totalPages = (int) Math.ceil((double) totalDocs / pageable.getPageSize());
-
-        int nowPage = pageable.getPageNumber() + 1; // 처음이 0 이므로
-
-        // 시작 페이지 -> 현재 페이징 된 페이지 기준 앞으로 4개
-        int startPage = Math.max(nowPage - 4, 1);
-
-        // 끝 페이지 -> 현재 페이징 된 페이지 기준 뒤로 9개
-        int endPage = Math.min(nowPage + 9, totalPages);
-
         model.addAttribute("docs", docs);
-        model.addAttribute("nowPage", nowPage);
-        model.addAttribute("startPage", startPage);
-        model.addAttribute("endPage", endPage);
-        model.addAttribute("currentPage", pageable.getPageNumber());
-        model.addAttribute("pageSize", pageable.getPageSize());
-        model.addAttribute("totalPages", totalPages);
         return "doc-list";
     }
 
