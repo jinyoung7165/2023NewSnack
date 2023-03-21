@@ -78,7 +78,7 @@ layout:decorate="~{fragments/layout}">
             .range(colors);
         if (hotWords) {
             data = hotWords.map(function(hotWord) {
-                return {text: hotWord.word, size: hotWord.weight * 1000, doc: hotWord.doc};
+                return {text: hotWord.word, size: hotWord.weight * 1000};
             });
         }
         console.log(hotWords);

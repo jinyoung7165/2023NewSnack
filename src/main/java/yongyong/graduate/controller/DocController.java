@@ -5,8 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.mongodb.core.query.Query;import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +16,7 @@ import yongyong.graduate.domain.Hot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -32,7 +32,7 @@ public class DocController {
         Hot hot = mongoTemplate.find(
                 query, Hot.class, TodayUtil.todayHot()).get(0);
 
-        List<Doc> docs = hot.getDoc();
+        List<Doc> docs = hot.getDoc().stream().limit(5).collect(Collectors.toList());
 
         model.addAttribute("docs", docs);
         model.addAttribute("date", TodayUtil.todays());

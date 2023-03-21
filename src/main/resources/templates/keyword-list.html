@@ -10,10 +10,20 @@
 </head>
 <body layout:fragment="content">
 <div style="display: flex;">
-    <h1><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #007aff;"></span> 뉴스 검색 결과
+    <h1 style="text-align: left;
+            width: 50%;
+            margin: auto;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 2%;"><span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #007aff;"></span> 뉴스 검색 결과
         <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span> 건입니다.
     </h1>
-    <span style="margin-top:3%; margin-left: 60%;">
+    <span style="text-align: right;
+            width: 50%;
+            margin: auto;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-right: 2%;margin-top:3%;">
      <img src="/img/clock.png" alt="clock img" style="width: 12px;">
     <span th:text="${date[2]}"></span> ~ <span th:text="${date[0]}"></span>
   </span>
