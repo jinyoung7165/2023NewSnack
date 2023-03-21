@@ -15,7 +15,7 @@
     <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span> 건입니다.
   </h1>
   <span style="margin-top:3%; margin-left: 60%;">
-     <img src="/img/clock.png" alt="clock img" style="width: 15px;">
+     <img src="/img/clock.png" alt="clock img" style="width: 12px;">
     <span th:text="${date[2]}"></span> ~ <span th:text="${date[0]}"></span>
   </span>
 </div>
@@ -43,7 +43,7 @@
           <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
         </div>
         <div>
-          <span class="summary" th:utext="${doc.summary.replace('\\.', '.<br/>')}"></span>
+          <span class="summary" th:utext="${doc.summary.replace('.','.&lt;br/&gt;')}"></span>
         </div>
         <button class="close-button">X</button>
       </div>
