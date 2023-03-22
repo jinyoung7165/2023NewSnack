@@ -25,7 +25,7 @@
             padding-bottom: 5px;
             padding-right: 2%;margin-top:3%;">
      <img src="/img/clock.png" alt="clock img" style="width: 12px;">
-    <span th:text="${date[2]}"></span> ~ <span th:text="${date[0]}"></span>
+    <span style="color: #999; font-weight: bold;" th:text="${date[2]}"></span> ~ <span style="color: #999; font-weight: bold;" th:text="${date[0]}"></span>
   </span>
 </div>
 <div th:each="doc , i : ${docs}">
@@ -57,7 +57,7 @@
             </div>
 
             <div class="article-details">
-                <span class="press" th:text="${doc.press}"></span>
+                <span class="press" th:text="${doc.press}" style="font-weight: bold; color: #6a7e88;"></span>
                 <span class="date" th:text="${doc.date}"></span>
                 <div class="main-keyword">
                     <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}" style="cursor:pointer;">&nbsp;</span>
@@ -181,20 +181,27 @@
 
   .popup .link {
     font-size: 14px;
-    color: #333;
+    color: #6a7e88;
+    font-weight: bold;
     text-decoration: none;
+    cursor: pointer;
   }
 
   .popup .keyword-content {
     display: flex;
 <!--    justify-content: space-between;-->
     font-size: 14px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     color: #6699FF;
   }
 
 
   .popup .keyword-content span{
     margin-right: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
   }
 
   .popup .summary {
