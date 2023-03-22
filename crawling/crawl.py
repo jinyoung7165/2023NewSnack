@@ -80,6 +80,8 @@ def get_news_content(idx, return_list):
         pattern6 = r'\[[^]]*\]' #괄호와 괄호 안 글자 제거
         pattern7 = r'\【[^】]*\】'
         pattern8 = r'\◀[^▶]*\▶'
+        lgt = "(?:&[gl]t;)+"
+        amp = "(?:&amp;)+"
         # 뉴스 제목 가져오기
         item_title = news_html.select_one("#ct > div.media_end_head.go_trans > div.media_end_head_title > h2")
         if item_title == None:
@@ -98,6 +100,9 @@ def get_news_content(idx, return_list):
         if len(text_area) == 0: text_area = news_html.select("#articeBody")
         content = ''.join(str(text_area))
         item_title = re.sub(pattern=pattern1, repl='', string=str(item_title))
+        item_title = re.sub(pattern=lgt, repl='', string=item_title)
+        item_title = re.sub(pattern=amp, repl='', string=item_title)
+        
         content = re.sub(pattern=br, repl='. ', string=content)
         content = re.sub(pattern=pattern1, repl='', string=content)
         content = content.replace(pattern2, '')
@@ -106,8 +111,8 @@ def get_news_content(idx, return_list):
         content = content.rstrip(']')
         
         content = re.sub(pattern=pattern3, repl='', string=content)
-        content = re.sub(pattern="(?:&[gl]t;)+", repl='', string=content)
-        content = re.sub(pattern="(?:&amp;)+", repl='', string=content)
+        content = re.sub(pattern=lgt, repl='', string=content)
+        content = re.sub(pattern=amp, repl='', string=content)
         content = re.sub(pattern=pattern4, repl='', string=content)
         content = re.sub(pattern=pattern5, repl='', string=content)
         content = re.sub(pattern=pattern6, repl='', string=content)
