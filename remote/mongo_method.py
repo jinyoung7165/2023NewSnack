@@ -1,4 +1,4 @@
-from bson import ObjectId, DBRef
+from bson import ObjectId
 from pymongo import MongoClient
 import datetime, os, re
 
@@ -70,7 +70,7 @@ class RunDB:
         hot = {
             "word" : word,
             "weight" : weight,
-            "doc" : [DBRef(t[0].split("/")[0], ObjectId(t[0].split("/")[1])) for t in temp] # DBRef(날짜_doc, _id)
+            "doc" : [{"ref": t[0].split("/")[0], "_id": ObjectId(t[0].split("/")[1])} for t in temp] # 날짜_doc, _id
         }
         
         return hot

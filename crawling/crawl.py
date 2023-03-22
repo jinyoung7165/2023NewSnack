@@ -129,9 +129,7 @@ def convert_csv(return_list):
 def save_in_mongo(mongodb, return_list):
     docs = []
     for i in range(len(return_list)):
-        doc_name = now_date + "/" + str(i)
         doc = {
-            'doc': doc_name, # 2023-02-10/0
             'link': return_list[i][0], # 링크
             'press': return_list[i][1], # 언론사
             'image': return_list[i][2], # 이미지
@@ -173,8 +171,6 @@ def crawl():
         for process in process_chuck:
             process.join()
     
-        
-    convert_csv(list(return_list))
     save_in_mongo(mongodb, list(return_list))
     mongodb.create_index('keyword')
     
