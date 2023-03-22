@@ -70,9 +70,10 @@ class Summary:
             summary = ""
             if(rescode == 200):
                 summary = json.loads(res.text)["summary"]
-            else:
-                summary = "Insufficient valid sentence"
-            summaries.append(summary)
+                summaries.append(summary)
+                
+            if len(summaries) == 0:
+                summaries.append("Insufficient valid sentence")
 
         final_summary = "\n".join(summaries)
 
