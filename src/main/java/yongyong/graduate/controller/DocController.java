@@ -2,6 +2,7 @@ package yongyong.graduate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -15,6 +16,7 @@ import yongyong.graduate.domain.Doc;
 import yongyong.graduate.domain.Hot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -25,8 +27,6 @@ public class DocController {
 
     @GetMapping("/docs/hot")
     public String showHotDocs(Model model, @RequestParam("word") String word) throws Exception {
-        long stime = System.currentTimeMillis();
-
         Query hotQuery = new Query();
         hotQuery.fields().include("doc", "weight");
         hotQuery.addCriteria(Criteria.where("word").is(word)).limit(1);
@@ -34,23 +34,33 @@ public class DocController {
         List<DBRef> docRefs = hots.get(0).getDoc();
         List<Doc> docs = new ArrayList<>();
 
+        HashMap<String, ArrayList<ObjectId>> refMap = new HashMap<>(); //collection별 id list 생성
         docRefs.forEach((docRef) -> {
-            Query docQuery = new Query();
-            docQuery.fields().exclude("_id", "main");
-            docQuery.addCriteria(Criteria.where("_id").is(docRef.get_id()));
-            docs.add(mongoTemplate.find(docQuery, Doc.class, docRef.getRef()).get(0));
+            String key = docRef.getRef();
+            if (refMap.containsKey(key)) {
+                refMap.get(key).add(docRef.get_id());
+            }
+            else {
+                ArrayList<ObjectId> list = new ArrayList<>();
+                list.add(docRef.get_id());
+                refMap.put(key, list);
+            }
         });
 
-        System.out.println("docQuery:"+(System.currentTimeMillis()-stime)+"ms"); //엄청난 시간
+        for (String col : refMap.keySet()) {
+            Query docQuery = new Query();
+            docQuery.fields().exclude("_id", "main");
+            docQuery.addCriteria(Criteria.where("_id").in(refMap.get(col)));
+            docs.addAll(mongoTemplate.find(docQuery, Doc.class, col));
+        }
+
         model.addAttribute("docs", docs);
         model.addAttribute("date", TodayUtil.todays());
-        System.out.println("소요시간:"+(System.currentTimeMillis()-stime)+"ms");
         return "doc-list";
     }
 
     @GetMapping("/docs")
     public String showKeywordDocs(Model model, @RequestParam("word") String word) throws Exception {
-        long stime = System.currentTimeMillis();
         List<String> docCols = TodayUtil.todayDocs();  // 3일치 doc collection
         List<Doc> docs = new ArrayList<>();
 
@@ -62,10 +72,8 @@ public class DocController {
             docs.addAll(mongoTemplate.find(query, Doc.class, col));
         }
 
-        System.out.println("total document's num : " + docs.size());
         model.addAttribute("docs", docs);
         model.addAttribute("date", TodayUtil.todays());
-        System.out.println("소요시간:"+(System.currentTimeMillis()-stime)+"ms");
         return "keyword-list";
     }
 }
