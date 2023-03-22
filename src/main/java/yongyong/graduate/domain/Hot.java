@@ -1,8 +1,8 @@
 package yongyong.graduate.domain;
 
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Field;
 import yongyong.graduate.common.annotation.TodayHot;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public class Hot {
     @Id
     @Field("_id")
-    private String _id;
+    private ObjectId _id;
 
     @Field("word")
     private String word;
@@ -22,7 +22,6 @@ public class Hot {
     @Field("weight")
     private double weight;
 
-    @DBRef
     @Field("doc")
-    private List<Doc> doc;
+    private List<DBRef> doc;
 }

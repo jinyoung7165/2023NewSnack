@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TodayDoc {
-    String collection = "2023-03-21_doc";
+    String collection = "2023-03-23_doc";
 
     @AliasFor("collection")
     String value() default collection;

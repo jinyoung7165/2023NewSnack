@@ -26,7 +26,6 @@ public class HotController {
         Query query = new Query();
         query.fields().exclude("_id", "doc");
         List<Hot> hotWords = mongoTemplate.find(query, Hot.class, TodayUtil.todayHot());
-        System.out.println("hotWords size: " + hotWords.size());
         model.addAttribute("hotWords", hotWords);
         model.addAttribute("date", TodayUtil.todays());
         return "index";

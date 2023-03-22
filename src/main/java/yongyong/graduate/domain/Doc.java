@@ -1,6 +1,7 @@
 package yongyong.graduate.domain;
 
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -14,16 +15,12 @@ import java.util.List;
 public class Doc {
     @Id
     @Field("_id")
-    private String _id;
+    private ObjectId _id;
 
-    // "2023-02-01/0"
-    private String doc;
     private String title;
-    private String main;
     private String press;
     private String image;
     private String summary;
-    // keyword는 dictionary 타입
     @Indexed
     private List<String> keyword;
     private String date;

@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TodayHot {
-    String collection = "2023-03-21_hot";
+    String collection = "2023-03-23_hot";
 
     @AliasFor("collection")
     String value() default collection;

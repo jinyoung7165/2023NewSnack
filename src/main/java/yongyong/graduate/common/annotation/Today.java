@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Today {
-    String lastUpdated = "2023-03-21";
+    String lastUpdated = "2023-03-23";
     String value() default lastUpdated;
 
 }
