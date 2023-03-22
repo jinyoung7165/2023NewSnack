@@ -70,7 +70,7 @@ class RunDB:
         hot = {
             "word" : word,
             "weight" : weight,
-            "doc" : [{"ref": t[0].split("/")[0], "_id": ObjectId(t[0].split("/")[1])} for t in temp] # 날짜_doc, _id
+            "doc" : [{"ref": t[0].split("/")[0], "_id": t[0].split("/")[1]} for t in temp] # 날짜_doc, _id
         }
         
         return hot
