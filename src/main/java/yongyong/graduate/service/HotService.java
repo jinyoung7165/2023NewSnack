@@ -1,39 +1,34 @@
-//package yongyong.graduate.service;
-//
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.stereotype.Service;
-//import yongyong.graduate.docDomain.DocRepository;
-//import yongyong.graduate.domain.Hot;
-//import yongyong.graduate.hotDomain.HotRepository;
-//
-//import java.util.List;
-//
-//@Service
-//@RequiredArgsConstructor
-//public class HotService {
-//
-//    private final HotRepository hotRepository;
-//    private final DocRepository docRepository;
-//
-//    public List<Hot> findAll() {
-//        return hotRepository.findAll();
-//    }
-//
-//    public List<Doc> getDocsByKeyword(String keyword) {
-//        List<Hot> hotWords = hotRepository.findBy_id(keyword);
-//        if (hotWords.size() == 0) {
-//            return new ArrayList<>();
-//        }
-//        Hot hotWord = hotWords.get(0);
-//        List<String> docIds = hotWord.getDocs();
-//        List<Doc> docs = new ArrayList<>();
-//        for (String docId : docIds) {
-//            String[] arr = docId.split("/");
-//            String docDate = arr[0];
-//            int docNum = Integer.parseInt(arr[1]);
-//            Doc doc = docRepository.findByDateAndNum(docDate, docNum);
-//            docs.add(doc);
-//        }
-//        return docs;
-//    }
-//}
+package yongyong.graduate.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
+import yongyong.graduate.common.util.TodayUtil;
+import yongyong.graduate.domain.Hot;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class HotService {
+
+    private final MongoTemplate mongoTemplate;
+
+    public List<Hot> findAllHot() {
+        Query query = new Query();
+        query.fields().exclude("_id", "doc");
+        List<Hot> hotWords = mongoTemplate.find(query, Hot.class, TodayUtil.todayHot());
+        return hotWords;
+    }
+
+    public Hot findWordHot(String word) {
+        Query hotQuery = new Query();
+        hotQuery.fields().include("doc", "weight");
+        hotQuery.addCriteria(Criteria.where("word").is(word)).limit(1);
+        List<Hot> hots = mongoTemplate.find(hotQuery, Hot.class, TodayUtil.todayHot());
+        return hots.get(0);
+    }
+
+}
