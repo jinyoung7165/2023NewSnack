@@ -17,11 +17,13 @@ class MongoDB:
 
     def get_all_docs(self, date): # 날짜_doc의 모든 문서 [[id, main], [id, main]]
         doc_c = self.db['{}_doc'.format(date)]
-        date_docs = doc_c.find(None, {'_id': 1, 'main': 1})
+        date_docs = doc_c.find(None, {'_id': 1, 'main': 1, 'title': 1})
         date_docs_list = []
         for doc in date_docs:
             id = str(doc['_id']) #{"_id": ObjectId(id)}
             main = re.sub('[^A-Z a-z 0-9 가-힣 .]', '', doc['main'])
+            title = re.sub('[^A-Z a-z 0-9 가-힣 .]', '', doc['title'])
+            main += "." + title + "." + title + "." + title #제목 가중치 3배
             date_docs_list.append([id, main])
             
         return date_docs_list
