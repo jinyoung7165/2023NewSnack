@@ -18,6 +18,8 @@ RUN apt-get clean && \
 # timezone
 RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+VOLUME /tmp
+
 # make workspace for konlpy
 RUN mkdir -p /workspace
 WORKDIR /workspace
@@ -51,5 +53,4 @@ COPY summary.txt ./
 COPY stopword.txt ./
 COPY run.py ./
 
-# container 종료 막음
-CMD tail -f /dev/null
+CMD ["python3", "run.py"]
