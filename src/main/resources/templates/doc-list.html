@@ -58,8 +58,10 @@
           <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
         </div>
         <div>
-          <span class="summary"
-                th:text="${#strings.equals(doc.summary, 'Insufficient valid sentence') ? '요약할 수 없는 기사입니다. 원문을 참고해주세요.' : doc.summary }">>
+<!--          <span class="summary" th:with="sentences=${#strings.setSplit(doc.summary, '. ')}">-->
+<!--            <span th:each="sentence : ${sentences}" th:text="${sentence}"></span>-->
+<!--          </span>-->
+          <span class="summary" th:utext="${#strings.equals(doc.summary, 'Insufficient valid sentence') ? '요약할 수 없는 기사입니다. 원문을 참고해주세요.' : doc.summary.replace(regex, '&lt;br/&gt;&lt;br/&gt;')}"></span>
           </span>
         </div>
       </div>

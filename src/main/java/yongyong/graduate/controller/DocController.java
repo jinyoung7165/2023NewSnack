@@ -26,8 +26,10 @@ public class DocController {
     public String showHotDocs(Model model, @RequestParam("word") String word) throws Exception {
         List<DBRef> docRefs = hotService.findWordHot(word).getDoc();
         List<Doc> docs = docService.findHotDocs(docRefs);
+        String regex = "\n";
 
         model.addAttribute("docs", docs);
+        model.addAttribute("regex", regex);
         model.addAttribute("date", TodayUtil.todays(Optional.empty()));
         return "doc-list";
     }
@@ -35,8 +37,10 @@ public class DocController {
     @GetMapping("/docs")
     public String showKeywordDocs(Model model, @RequestParam("word") String word) throws Exception {
         List<Doc> docs = docService.findKeywordDocs(word);
+        String regex = "\n";
 
         model.addAttribute("docs", docs);
+        model.addAttribute("regex", regex);
         model.addAttribute("date", TodayUtil.todays(Optional.empty()));
         return "keyword-list";
     }
