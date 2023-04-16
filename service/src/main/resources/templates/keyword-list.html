@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>Keyword Document List</title>
+</head>
+<body layout:fragment="content">
+<div style="display: flex;">
+    <h1 style="text-align: left;
+            width: 50%;
+            margin: auto;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 2%;">키워드 <span th:text="'&quot;' + ${param.word} + '&quot;'" style="color: #007aff;"></span> 연관뉴스
+        <span th:text="${#lists.size(docs)}" style="color: #e65555;"></span> 건입니다.
+    </h1>
+    <span style="text-align: right;
+            width: 50%;
+            margin: auto;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-right: 2%;margin-top:3%;">
+     <img src="/img/clock.png" alt="clock img" style="width: 12px;">
+    <span style="color: #999; font-weight: bold;" th:text="${date[2]}"></span> ~ <span style="color: #999; font-weight: bold;" th:text="${date[0]}"></span>
+  </span>
+</div>
+<div th:each="doc , i : ${docs}">
+    <div class="article">
+        <div class="image-container" th:if="${doc.image != null}">
+            <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
+        </div>
+        <div class="article-content">
+            <div class="click" th:data-doc-index="${i.index}" style="cursor:pointer;">
+                <h2 class="title" th:text="${doc.title}"></h2>
+                <div class="summary"
+                     th:text="${#strings.equals(doc.summary, 'Insufficient valid sentence') ? '요약할 수 없는 기사입니다. 원문을 참고해주세요.' : (#strings.length(doc.summary) &lt;= 100 ? doc.summary : doc.summary.substring(0, 100) + '...') }">
+                </div>
+            </div>
+            <div id="dim-layer"></div>
+            <div class="popup">
+                <div>
+                    <h2 th:text="${doc.title}"></h2>
+                    <button class="close-button">X</button>
+                </div>
+                <span class="date" th:text="${doc.date}"></span>
+                <a class="link" th:href="${doc.link}" target="_blank">원문보기</a>
+                <div class="keyword-content">
+                    <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}"></span>
+                </div>
+
+                <div class="popup-image-container" th:if="${doc.image != null}">
+                    <img th:src="${doc.image}" style="width:200px; height:200px;" alt="Article Image">
+                </div>
+                <div>
+                    <span class="summary" th:utext="${#strings.equals(doc.summary, 'Insufficient valid sentence') ? '요약할 수 없는 기사입니다. 원문을 참고해주세요.' : doc.summary.replace(regex, '&lt;br/&gt;&lt;br/&gt;')}"></span>
+                </div>
+            </div>
+
+            <div class="article-details">
+                <span class="press" th:text="${doc.press}" style="font-weight: bold; color: #6a7e88;"></span>
+                <span class="date" th:text="${doc.date}"></span>
+                <div class="main-keyword">
+                    <span th:each="keyword : ${doc.keyword}" class="keyword" th:text="${keyword}" style="cursor:pointer;">&nbsp;</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+  :root {
+    --primary-color: #6699FF;
+  }
+
+  body {
+    font-family: 'Quicksand';
+  }
+
+   h1 {
+      font-family: 'Noto Sans KR';
+      font-weight: 700;
+   }
+
+  .article {
+    display: flex;
+    align-items: center;
+    margin: 0 20px 45px;
+    padding: 15px;
+    border: 2px solid #e6e6e6;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .article-content {
+    flex-grow: 1;
+    margin: 20px;
+  }
+
+  .article-content h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #414c62;
+  }
+
+  .summary {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    max-height: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+  }
+
+  .popup-btn {
+    padding: 4px;
+    border: 1px solid #ccc0;
+    border-radius: 5px;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  .article-details {
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+    margin: 2px;
+  }
+
+  .article-details span {
+    margin-right: 10px;
+  }
+
+  .article-details span:last-child {
+    margin-right: 0;
+  }
+
+  .main-keyword {
+    display: flex;
+    font-size: 14px;
+    color: #6699FF;
+    font-weight: bold;
+  }
+
+  #dim-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    display: none;
+  }
+
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px;
+    z-index: 2;
+    display: none;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+  }
+
+  .popup img {
+    max-width: 100%;
+    display: block;
+    margin: 35px auto;
+  }
+
+  .popup h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #414c62;
+  }
+
+  .popup .link {
+    font-size: 14px;
+    color: #6a7e88;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .popup .keyword-content {
+    display: flex;
+<!--    justify-content: space-between;-->
+    font-size: 14px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    color: #6699FF;
+  }
+
+
+  .popup .keyword-content span{
+    margin-right: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .popup .summary {
+    font-size: 16px;
+    color: #333;
+    white-space: pre-line;
+  }
+
+  .close-button {
+    border: none;
+    background-color: white;
+    float: right;
+    font-size: 20px;
+  }
+
+}
+</style>
+<script>
+    const clicks = document.getElementsByClassName('click');
+    const popups = document.getElementsByClassName('popup');
+    const dimLayer = document.getElementById('dim-layer');
+    const closeButtons = document.getElementsByClassName('close-button');
+    const keywords = document.getElementsByClassName('main-keyword');
+
+    for (let i = 0; i < clicks.length; i++) {
+      clicks[i].addEventListener('click', function() {
+        const index = this.getAttribute('data-doc-index');
+        dimLayer.style.display = 'block';
+        popups[index].style.display = 'block';
+      });
+    }
+
+    for (let i = 0; i < closeButtons.length; i++) {
+      closeButtons[i].addEventListener('click', function() {
+        dimLayer.style.display = 'none';
+        popups[i].style.display = 'none';
+      });
+    }
+
+    for (let i = 0; i < keywords.length; i++) {
+      keywords[i].addEventListener('click', function(e) {
+        window.location.href = "/docs?word=" + e.target.textContent;
+      });
+    }
+</script>
+</body>
+</html>
