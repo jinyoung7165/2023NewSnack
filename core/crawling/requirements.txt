@@ -1,0 +1,6 @@
+pandas == 1.5.0
+boto3
+python-dotenv
+requests
+bs4
+pymongo
