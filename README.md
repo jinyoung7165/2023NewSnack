@@ -43,4 +43,6 @@
 |[최진영](https://github.com/jinyoung7165)|[주다애](https://github.com/jooda00)|
 |:-------:|:---------:|
 |<img width="190" alt= "ㅇㄹㅇㄹ" src = "https://github.com/jooda00/2023NewSnack/assets/68958749/16843b11-5357-41a6-9d93-f8233f5a64f8.jpg">|<img width ="190" alt = "다애" src = "https://user-images.githubusercontent.com/97823928/228543130-fdc04c19-1a0d-49db-93be-493595645045.png">|
-
+|데이터 수집 및 분석/전처리|데이터 분석/전처리|
+|디비 모델링|디비 모델링|
+|인프라 구축 및 배포|서비스 화면 구성|
