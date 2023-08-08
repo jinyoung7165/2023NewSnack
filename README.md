@@ -3,11 +3,12 @@
 - 최신 뉴스 핫토픽 -> WordCloud 제공
 - 데이터 분석을 통해 기사별 Keyword 추출
 - 키워드 Click만으로 query -> 관련 뉴스 탐색
-- 기사 요약본 제공
+- 기사 요약본 제공(Naver CLOVA Summary API 사용)
 ---
 ### 데이터 분석
 - TF-IDF
 - FastText
+- KoNLPy, Scikit-Learn, Gensim -> 텍스트 분석
 ---
 ### 서비스
 <p align="center">
@@ -28,3 +29,18 @@
 <p align="center">
 <img width="400" alt="DB" src="https://user-images.githubusercontent.com/68634112/232314216-bd367c4e-a331-48a0-8f2e-5d154c2bcc78.png">
 </p>
+
+---
+### Commit Convention
+```
+- [FEAT]      : 기능 (새로운 기능)
+- [FIX]       : 버그 (버그 수정)
+- [ADD]       : 기능 (기존 기능에 추가)
+- [REFACTOR]  : 리팩토링
+```
+---
+### Contributors
+Member| TASK|
+---| ---|
+[최진영](https://github.com/jinyoung7165)|데이터 수집 및 분석/전처리, 디비 모델링, 인프라 구축 및 배포|
+[주다애](https://github.com/jooda00)|데이터 분석/전처리, 화면 구성|
